@@ -1,0 +1,19 @@
+{
+  "name": "accessibility-checker-fyp",
+  "version": "0.1.0",
+  "description": "This is the node project for my final year project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulGeoghegan/Accessibility-Checker-FYP.git"
+  },
+  "author": "Paul Geoghegan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/paulGeoghegan/Accessibility-Checker-FYP/issues"
+  },
+  "homepage": "https://github.com/paulGeoghegan/Accessibility-Checker-FYP#readme"
+}
