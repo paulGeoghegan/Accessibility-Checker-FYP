@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/paulGeoghegan/Accessibility-Checker-FYP/issues"
   },
-  "homepage": "https://github.com/paulGeoghegan/Accessibility-Checker-FYP#readme"
+  "homepage": "https://github.com/paulGeoghegan/Accessibility-Checker-FYP#readme",
+  "dependencies": {
+    "@google-cloud/vision": "^3.0.1",
+    "dotenv": "^16.0.3"
+  }
 }
