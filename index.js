@@ -1,13 +1,15 @@
 require("dotenv").config();
-const gv = require("@google-cloud/vision");
+const ComputerVisionClient = require('@azure/cognitiveservices-computervision').ComputerVisionClient;
+const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
 const express = require("express");
 const bodyParser = require("body-parser");
 
 //Gets key from .env file
-const google_vision_key=process.env.gvkey;
+const microsoft_computer_vision_key = process.env.mskey;
+const microsoft_computer_vision_endpoint = process.env.msendpoint;
 
 //Creates client
-const gv_client = new gv.ImageAnnotatorClient(google_vision_key);
+const computerVisionClient = new ComputerVisionClient(new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': microsoft_computer_vision_key } }), microsoft_computer_vision_endpoint);
 
 //Sets up express server
 const app = express();
@@ -26,10 +28,9 @@ app.post("/", function(req, res) {
 
 	console.log("Getting Alt Text");
 	image = req.body.userImage;
-	labelList = "";
 
-	//Gets description for image
-	gv_client.labelDetection(image).then((results) => {
+	const results = 
+
 		const labels = results[0].labelAnnotations;
 
 		console.log("Labels:");
