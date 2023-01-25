@@ -27,16 +27,19 @@ app.get("/", function(req, res) {
 app.post("/", function(req, res) {
 
 	console.log("Getting Alt Text");
-	image = req.body.userImage;
+	//This stores the URL for the image the user wants described
+	image = req.body.userImageURL;
+	console.log(image)
 
-	const results = 
+	//This stores the features the user wants returned
+	features = ['Description'];
+	domainDetails = ['Celebrities', 'Landmarks'];
 
-		const labels = results[0].labelAnnotations;
+	//Gets results
+	const results = computerVisionClient.analyzeImage(image,{visualFeatures: features},{details: domainDetails});
 
-		console.log("Labels:");
-		labels.forEach((label) => labelList+=","+label.description);
-		console.log(labelList);
-		res.send(labelList);
-	});
+	console.log("Results:");
+	console.log(results);
+	res.send(results);
 
 });

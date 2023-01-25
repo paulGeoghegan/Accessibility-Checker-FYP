@@ -8,7 +8,8 @@
 	<p> Upload a file to generate alt text for</p>
 
 	<form action="/" method="post"/>
-		<input type="file" name="userImage" aria-label="Brows files" /></br>
+		<label for="userImage">Image URL</label>
+		<input id="userImage" type="url" name="userImage"  /></br>
 		<input id="submitAltTextForm" type="submit" name="Generate Alt Text" aria-label="Generate Alt Text"/>
 	</form>
 
