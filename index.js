@@ -4,6 +4,7 @@ const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
 const express = require("express");
 const bodyParser = require("body-parser");
 
+
 //Gets key from .env file
 const microsoft_computer_vision_key = process.env.mskey;
 const microsoft_computer_vision_endpoint = process.env.msendpoint;
@@ -31,15 +32,22 @@ app.post("/", function(req, res) {
 	image = req.body.userImageURL;
 	console.log(image)
 
+	generateAltText(image).then(results >= res.send(results));
+
+});
+
+
+//This function handles sending the request to azure computer vision
+async function generateAltText(image) {
+
 	//This stores the features the user wants returned
-	features = ['Description'];
+	features = ['ImageType', 'Faces', 'Adult', 'Categories', 'Color', 'Tags', 'Description', 'Objects', 'Brands'];
 	domainDetails = ['Celebrities', 'Landmarks'];
 
 	//Gets results
-	const results = computerVisionClient.analyzeImage(image,{visualFeatures: features},{details: domainDetails});
-
+	const results = (await computerVisionClient.analyzeImage(image,{visualFeatures: features},{details: domainDetails}));
 	console.log("Results:");
-	console.log(results);
-	res.send(results);
+	console.log(results.description["captions"]);
 
-});
+	return results.description["captions"];
+}
