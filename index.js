@@ -32,7 +32,7 @@ app.post("/", function(req, res) {
 	image = req.body.userImageURL;
 	console.log(image)
 
-	generateAltText(image).then(results >= res.send(results));
+	generateAltText(image).then(results => res.send(results[0].text));
 
 });
 
