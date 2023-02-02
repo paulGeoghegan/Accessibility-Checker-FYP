@@ -14,15 +14,14 @@ const computerVisionClient = new ComputerVisionClient(new ApiKeyCredentials({ in
 
 //Sets up express server
 const app = express();
-app.use(bodyParser.urlencoded({
-    extended:true
-}));
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static(__dirname + "/Public"));
 app.listen(3000, function() {
 	console.log('Server running on port 3000');
 });
 
 app.get("/", function(req, res) {
-	res.sendfile("./home.html");
+	res.sendfile(__dirname + "/Public/Home/home.html");
 });
 
 app.post("/", function(req, res) {
