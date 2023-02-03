@@ -3,9 +3,12 @@ const ComputerVisionClient = require('@azure/cognitiveservices-computervision').
 const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
 const express = require("express");
 const bodyParser = require("body-parser");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const { response } = require("express");
 
 
-//Gets key from .env file
+//Gets key and endpoint from .env file for computer vision
 const microsoft_computer_vision_key = process.env.mskey;
 const microsoft_computer_vision_endpoint = process.env.msendpoint;
 
@@ -16,24 +19,43 @@ const computerVisionClient = new ComputerVisionClient(new ApiKeyCredentials({ in
 const app = express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(__dirname + "/Public"));
+app.use(cookieParser());
+app.use(session({
+	secret: process.env.appsecret,
+	saveUninitialized: true,
+	resave: true
+}));
+
 app.listen(3000, function() {
 	console.log('Server running on port 3000');
 });
 
+
+//This serves the user the Home page
 app.get("/", function(req, res) {
 	res.sendFile(__dirname + "/Public/Home/home.html");
 });
 
-app.post("/", function(req, res) {
+//This handles the post request for when the user enters a URL
+app.post("/", async function(req, res) {
 
 	console.log("Getting Alt Text");
 	//This stores the URL for the image the user wants described
 	image = req.body.userImageURL;
 	console.log(image)
 
-	generateAltText(image).then(results => res.send(results[0].text));
+	//This gets the alt text back from the microsoft computer vision service
+	req.session.results = await generateAltText(image)
+	console.log(req.session.results[0].text);
+	res.redirect("/report");
 
 });
+
+//This serves the user the report page
+app.get("/report", function(req, res) {
+	res.sendFile(__dirname + "/Public/Report/report.html");
+});
+
 
 
 //This function handles sending the request to azure computer vision
