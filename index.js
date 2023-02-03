@@ -21,7 +21,7 @@ app.listen(3000, function() {
 });
 
 app.get("/", function(req, res) {
-	res.sendfile(__dirname + "/Public/Home/home.html");
+	res.sendFile(__dirname + "/Public/Home/home.html");
 });
 
 app.post("/", function(req, res) {
