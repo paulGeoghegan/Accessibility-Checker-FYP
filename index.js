@@ -37,18 +37,13 @@ app.get("/", function(req, res) {
 });
 
 //This handles the post request for when the user enters a URL
-app.post("/", async function(req, res) {
-
+app.post("/", function(req, res) {
 	console.log("Getting Alt Text");
 	//This stores the URL for the image the user wants described
-	image = req.body.userImageURL;
-	console.log(image)
-
-	//This gets the alt text back from the microsoft computer vision service
-	req.session.results = await generateAltText(image)
-	console.log(req.session.results[0].text);
+	req.session.imageURL = req.body.userImageURL;
+	console.log(req.session.imageURL)
+	//Redirects to the Report page
 	res.redirect("/report");
-
 });
 
 //This serves the user the report page
@@ -56,7 +51,19 @@ app.get("/report", function(req, res) {
 	res.sendFile(__dirname + "/Public/Report/report.html");
 });
 
-
+//This root will generate and send the website report
+app.get("/createReport", async function(req, res) {
+	console.log("test");
+	console.log(req.session.imageURL);
+	try {
+		results = await generateAltText(req.session.imageURL);
+		res.status(200).send(results);
+	}
+	catch (ex) {
+		console.error(ex);
+		res.status(400).send(ex);
+	}
+});
 
 //This function handles sending the request to azure computer vision
 async function generateAltText(image) {

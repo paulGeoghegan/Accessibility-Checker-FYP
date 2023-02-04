@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title> Home </title>
+		<title> Home Page </title>
 	</head>
 	<body>
-	<h1>Home Page</h1>
-	<p> Enter an image URL to generate alt text for</p>
 
-	<form action="/" method="post"/>
-		<label for="userImage">Image URL</label>
-		<input id="userImage" type="url" name="userImageURL"  /></br>
-		<input id="submitAltTextForm" type="submit" name="Generate Alt Text" aria-label="Generate Alt Text"/>
-	</form>
+	<div id="topOfPage"></div>
+
+	<div id="middleOfPage">
+
+		<p> Enter an image URL to generate alt text for</p>
+
+		<form action="/" method="post"/>
+			<label for="userImage">Image URL</label>
+			<input id="userImage" type="url" name="userImageURL"  /></br>
+			<input id="submitAltTextForm" type="submit" name="Generate Alt Text" aria-label="Generate Alt Text"/>
+		</form>
+
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="Utilities/topOfPage.js"></script>
 
 	</body>
 </html>
