@@ -1,10 +1,11 @@
 
 //This waits till the page has loaded
 if(document.readyState) {
+	console.log("Creating report");
 	createWebsiteReport();
 }
 
-//This sends the get request which will generate and retreive the report
+//This sends the get request which will generate and retrieve the report
 function createWebsiteReport() {
 	//Sends request
 	get = $.get("/createReport");

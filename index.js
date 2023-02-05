@@ -48,6 +48,7 @@ app.post("/", function(req, res) {
 
 //This serves the user the report page
 app.get("/report", function(req, res) {
+	console.log("User Redirected");
 	res.sendFile(__dirname + "/Public/Report/report.html");
 });
 
