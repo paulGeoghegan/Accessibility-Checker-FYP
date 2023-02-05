@@ -7,6 +7,7 @@ $("#topOfPage").append(`
 		<h1>`+$("title").text()+`</h1>
 		<nav>
 			<a href="/">Home</a>
+			<a href="/myreports">My Reports</a>
 		</nav>
 		</br>
 `);

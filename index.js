@@ -46,6 +46,11 @@ app.post("/", function(req, res) {
 	res.redirect("/report");
 });
 
+//This serves the user the My Reports page
+app.get("/myreports", function(req, res) {
+	res.sendFile(__dirname + "/Public/My Reports/myreports.html");
+});
+
 //This serves the user the report page
 app.get("/report", function(req, res) {
 	console.log("User Redirected");
