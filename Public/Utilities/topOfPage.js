@@ -2,7 +2,7 @@
 //This creates the nav bar
 $("#topOfPage").append(`
 		<a id="skipToContent" href="#middleOfPage"> Skip to content </a>
-		<div id="loginLinks">
+		<div id="accountLinks">
 		</div>
 		<h1>`+$("title").text()+`</h1>
 		<nav>
@@ -11,3 +11,11 @@ $("#topOfPage").append(`
 		</nav>
 		</br>
 `);
+
+
+//This will check if the user is logged in so we know which links should be added
+const link = $.get("/isLoggedIn");
+link.done(function(linksToAdd) {
+		$("#accountLinks").append(linksToAdd);
+});
+
