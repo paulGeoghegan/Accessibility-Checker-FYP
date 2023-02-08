@@ -6,6 +6,10 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const { response } = require("express");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const bcrypt = require("bcrypt");
+const db = require("./dbManager.js")
 
 
 //Gets key and endpoint from .env file for computer vision
@@ -25,6 +29,9 @@ app.use(session({
 	saveUninitialized: true,
 	resave: true
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.listen(3000, function() {
 	console.log('Server running on port 3000');
@@ -46,9 +53,43 @@ app.post("/", function(req, res) {
 	res.redirect("/report");
 });
 
+//This serves the user the Create Account page
+app.get("/createAccount", function(req, res) {
+	res.sendFile(__dirname + "/Public/Create Account/createAccount.html");
+});
+
+//This creates the users account or lets them know if it doesn't exist
+app.post("/createAccount", function(req, res) {
+
+	//Gets email and password
+	const email = req.body.email;
+	const password = req.body.password;
+
+	//This will hash the users password
+	bcrypt.hash(password,10,function(ex,hashedPassword) {
+		console.log(ex);
+
+		//Adds new user to the database
+		db.addUser(res,email,hashedPassword);
+	});
+
+});
+
+//This checks if the user is logged in or not
+app.get("/isLoggedIn", function(req, res) {
+	if(req.isAuthenticated()) {
+		link = '<a href="/account">Account</a>'
+		res.status(200).send(link);
+	}
+	else {
+		link = '<a href="/createAccount">Create Account</a>\t<a href="/logIn">Log In</a>'
+		res.status(200).send(link);
+	}
+});
+
 //This serves the user the My Reports page
-app.get("/myreports", function(req, res) {
-	res.sendFile(__dirname + "/Public/My Reports/myreports.html");
+app.get("/myReports", function(req, res) {
+	res.sendFile(__dirname + "/Public/My Reports/myReports.html");
 });
 
 //This serves the user the report page
@@ -84,4 +125,14 @@ async function generateAltText(image) {
 	console.log(results.description["captions"]);
 
 	return results.description["captions"];
+}
+
+//This function checks if the user is logged in
+function loggedIn() {
+	return function(req, res, next) {
+		if(req.isAuthenticated()) {
+			return next();
+		}
+		res.redirect("/logIn");
+	}
 }
