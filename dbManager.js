@@ -2,7 +2,7 @@ require("dotenv").config();
 const pgp = require('pg-promise')();
 const { PreparedStatement: PS } = require('pg-promise');
 //This sets up the connection with the db
-const dbCon = pgp(`postgres://${process.env.pgUserName}:${process.env.password}@localhost:5432/${process.env.dbName}`);
+const dbCon = pgp(`postgres://${process.env.pgUsername}:${process.env.pgPassword}@localhost:5432/${process.env.pgDBName}`);
 
 
 //Sets up db commands
