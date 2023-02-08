@@ -3,11 +3,13 @@ const ComputerVisionClient = require('@azure/cognitiveservices-computervision').
 const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
 const express = require("express");
 const bodyParser = require("body-parser");
-const { body, validationResult } = require('express-validator');
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const { response } = require("express");
 const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const bcrypt = require("bcrypt");
+const db = require("./dbManager.js")
 
 
 //Gets key and endpoint from .env file for computer vision
@@ -54,6 +56,23 @@ app.post("/", function(req, res) {
 //This serves the user the Create Account page
 app.get("/createAccount", function(req, res) {
 	res.sendFile(__dirname + "/Public/Create Account/createAccount.html");
+});
+
+//This creates the users account or lets them know if it doesn't exist
+app.post("/createAccount", function(req, res) {
+
+	//Gets email and password
+	const email = req.body.email;
+	const password = req.body.password;
+
+	//This will hash the users password
+	bcrypt.hash(password,10,function(ex,hashedPassword) {
+		console.log(ex);
+
+		//Adds new user to the database
+		db.addUser(res,email,hashedPassword);
+	});
+
 });
 
 //This checks if the user is logged in or not
