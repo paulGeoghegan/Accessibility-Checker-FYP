@@ -1,0 +1,28 @@
+<!-- This page will hold the form that will be used for log in -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Log In </title>
+</head>
+<body>
+
+	<!-- This div will hold the Nav bar which will be created by the topOfPage script -->
+	<div id="topOfPage"></div>
+
+	<div id="middleOfPage">
+
+		<form id="userDetails">
+			<label for="email">Email</label>
+			<input id="email" type="email" autofocus required/></br>
+			<label for="password">Password</label>
+			<input id="password" type="password" required minlength="8" maxlength="50"/></br>
+			<input id="submitBtn" type="button" value="Log In"/>
+		</form>
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+	<script src="Utilities/topOfPage.js"></script>
+	<script src="Log In/login.js"></script>
+
+</body>
+</html>

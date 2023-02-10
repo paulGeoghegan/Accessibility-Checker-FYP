@@ -7,6 +7,5 @@ $("#submitBtn").click(function() {
 		password:$("#password")[0].value
 	};
 	//This sends the post request to the server
-	createUserRequest = $.post("/createAccount",body);
-	createUserRequest.done($.get("/"));
+	$.post("/login",body);
 });

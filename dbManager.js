@@ -24,6 +24,6 @@ function addUser(res, email, password) {
 		console.log("New user added");
 	}).catch(function(ex) {
 		console.error(ex);
-		return res.status(400).send(ex);
+		return ex;
 	});
 }

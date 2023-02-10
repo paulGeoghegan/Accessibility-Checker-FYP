@@ -70,9 +70,11 @@ app.post("/createAccount", function(req, res) {
 		console.log(ex);
 
 		//Adds new user to the database
-		db.addUser(res,email,hashedPassword);
+		ex = db.addUser(res,email,hashedPassword);
+		if(ex != null) {
+			console.log(ex);
+		}
 	});
-
 });
 
 //This checks if the user is logged in or not
@@ -85,6 +87,11 @@ app.get("/isLoggedIn", function(req, res) {
 		link = '<a href="/createAccount">Create Account</a>\t<a href="/logIn">Log In</a>'
 		res.status(200).send(link);
 	}
+});
+
+//This serves the log in page
+app.get("/logIn", function(req,res) {
+	res.sendFile(__dirname + "/public/Log In/login.html");
 });
 
 //This serves the user the My Reports page
@@ -100,7 +107,6 @@ app.get("/report", function(req, res) {
 
 //This root will generate and send the website report
 app.get("/createReport", async function(req, res) {
-	console.log("test");
 	console.log(req.session.imageURL);
 	try {
 		results = await generateAltText(req.session.imageURL);
