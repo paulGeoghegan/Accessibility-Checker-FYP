@@ -20,10 +20,5 @@ function addUser(res, email, password) {
 	});
 
 	//Executes prepared statement
-	dbCon.none(insertNewUser).then(function() {
-		console.log("New user added");
-	}).catch(function(ex) {
-		console.error(ex);
-		return res.status(400).send(ex);
-	});
+	return dbCon.none(insertNewUser);
 }

@@ -70,9 +70,13 @@ app.post("/createAccount", function(req, res) {
 		console.log(ex);
 
 		//Adds new user to the database
-		db.addUser(res,email,hashedPassword);
+		db.addUser(res,email,hashedPassword).then(function() {
+			console.log("New user added");
+		}).catch(function(ex) {
+			console.error(ex);
+		});
 	});
-
+	res.redirect("/");
 });
 
 //This checks if the user is logged in or not
