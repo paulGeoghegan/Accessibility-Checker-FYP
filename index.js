@@ -67,16 +67,20 @@ app.post("/createAccount", function(req, res) {
 
 	//This will hash the users password
 	bcrypt.hash(password,10,function(ex,hashedPassword) {
-		console.log(ex);
+		//Logs error if there is any
+		if(ex != null) {
+			console.log(ex);
+		}
 
 		//Adds new user to the database
 		db.addUser(res,email,hashedPassword).then(function() {
 			console.log("New user added");
+			res.status(204);
 		}).catch(function(ex) {
 			console.error(ex);
+			res.status(403).send(ex);
 		});
 	});
-	res.redirect("/");
 });
 
 //This checks if the user is logged in or not

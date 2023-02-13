@@ -7,6 +7,15 @@ $("#submitBtn").click(function() {
 		password:$("#password")[0].value
 	};
 	//This sends the post request to the server
-	createUserRequest = $.post("/createAccount",body);
-	createUserRequest.done($.get("/"));
+	$.post("/createAccount",body).done(accountCreated).fail(accountNotCreated);
 });
+
+
+function accountCreated() {
+	console.log("User Added");
+	window.location.replace("/");
+}
+
+function accountNotCreated(ex) {
+	console.error(ex);
+}
