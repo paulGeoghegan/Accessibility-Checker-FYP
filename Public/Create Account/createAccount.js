@@ -13,7 +13,13 @@ $("#submitBtn").click(function() {
 
 function accountCreated() {
 	console.log("User Added");
-	window.location.replace("/");
+	//Sends post request to log user in
+	$.post("/logIn",body).done(function() {
+		console.log("You are now logged in");
+		window.location.replace("/");
+	}).fail(function(ex) {
+		console.error(ex);
+	});
 }
 
 function accountNotCreated(ex) {

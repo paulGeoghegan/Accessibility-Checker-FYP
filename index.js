@@ -33,6 +33,48 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Uses pasport to authenticate user
+passport.use(new LocalStrategy(function checkUser(email, password,done) {
+	console.log("Logging in ",email);
+	//This sends the query to the db
+	db.findUser(email).then(function(row) {
+		if(!row) {
+			return done(null,false,"Sorry that user doesn't exist");
+		}
+		else {
+			//This compairs the passwords
+			bcrypt.compare(password,row.password,function(ex,result) {
+				//Checks if they match
+				if(result == true) {
+					//Sets up user
+					done(null,row.id);
+				}
+				else {
+					return done(ex,false,"Incorrect password");
+				}
+			})
+		}
+	}).catch(function(ex) {
+		console.error(ex);
+		return done(ex,false);
+});
+}));
+
+passport.serializeUser(function(user,done) {
+	console.log(user,done);
+	done(null,user.id);
+});
+
+//This will find an deserialize the user
+passport.deserializeUser(function(id,done) {
+	db.deserializeUser(id).then(function(row) {
+		console.log("User found id is:",row.id);
+		done(null,row.id)
+	}).catch(function(ex) {
+		console.error(ex);
+	})
+});
+
 app.listen(3000, function() {
 	console.log('Server running on port 3000');
 });
@@ -73,9 +115,9 @@ app.post("/createAccount", function(req, res) {
 		}
 
 		//Adds new user to the database
-		db.addUser(res,email,hashedPassword).then(function() {
+		db.addUser(email,hashedPassword).then(function() {
 			console.log("New user added");
-			res.status(204);
+			res.status(204).send("user added");
 		}).catch(function(ex) {
 			console.error(ex);
 			res.status(403).send(ex);
@@ -98,6 +140,33 @@ app.get("/isLoggedIn", function(req, res) {
 //This serves the log in page
 app.get("/logIn", function(req,res) {
 	res.sendFile(__dirname + "/public/Log In/login.html");
+});
+
+//This route will handle logging the user in
+app.post("/logIn", function(req,res) {
+	console.log("Logging user in");
+	passport.authenticate("local",function(ex,user,info) {
+		if(ex) {
+			console.error(ex);
+			res.status(403).send(ex);
+		}
+		else if(!user) {
+			console.log(info);
+			res.status(400).send(info);
+		}
+		else {
+			req.logIn(user,function(ex) {
+				if(ex) {
+					console.error(ex);
+					res.status(400).send(ex);
+				}
+				else {
+					console.log("User now authenticated");
+					res.status(200).send("Success");
+				}
+			})
+		}
+	});
 });
 
 //This serves the user the My Reports page
