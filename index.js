@@ -34,7 +34,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Uses pasport to authenticate user
-passport.use(new LocalStrategy(function checkUser(email, password,done) {
+passport.use(new LocalStrategy({usernameField:'email', passwordField:'password'}, function(email, password,done) {
 	console.log("Logging in ",email);
 	//This sends the query to the db
 	db.findUser(email).then(function(row) {
@@ -57,7 +57,7 @@ passport.use(new LocalStrategy(function checkUser(email, password,done) {
 	}).catch(function(ex) {
 		console.error(ex);
 		return done(ex,false);
-});
+	});
 }));
 
 passport.serializeUser(function(user,done) {
@@ -146,6 +146,7 @@ app.get("/logIn", function(req,res) {
 app.post("/logIn", function(req,res) {
 	console.log("Logging user in");
 	passport.authenticate("local",function(ex,user,info) {
+		console.log("Authentication");
 		if(ex) {
 			console.error(ex);
 			res.status(403).send(ex);
@@ -183,14 +184,10 @@ app.get("/report", function(req, res) {
 //This root will generate and send the website report
 app.get("/createReport", async function(req, res) {
 	console.log(req.session.imageURL);
-	try {
-		results = await generateAltText(req.session.imageURL);
-		res.status(200).send(results);
-	}
-	catch (ex) {
-		console.error(ex);
-		res.status(400).send(ex);
-	}
+
+	results = await generateAltText(req.session.imageURL);
+	res.status(200).send(results);
+
 });
 
 //This function handles sending the request to azure computer vision
@@ -201,11 +198,15 @@ async function generateAltText(image) {
 	domainDetails = ['Celebrities', 'Landmarks'];
 
 	//Gets results
-	const results = (await computerVisionClient.analyzeImage(image,{visualFeatures: features},{details: domainDetails}));
+	results = await computerVisionClient.analyzeImage(image,{visualFeatures: features});
 	console.log("Results:");
-	console.log(results.description["captions"]);
+	console.log(results.description["captions"][0].text);
 
-	return results.description["captions"];
+	return results.description["captions"][0].text;
+}
+
+function cb(ex) {
+	console.log(ex);
 }
 
 //This function checks if the user is logged in

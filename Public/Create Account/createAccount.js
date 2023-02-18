@@ -7,12 +7,13 @@ $("#submitBtn").click(function() {
 		password:$("#password")[0].value
 	};
 	//This sends the post request to the server
-	$.post("/createAccount",body).done(accountCreated).fail(accountNotCreated);
+	$.post("/createAccount",body).done(accountCreated(body)).fail(accountNotCreated);
 });
 
 
-function accountCreated() {
+function accountCreated(body) {
 	console.log("User Added");
+	console.log(body.email);
 	//Sends post request to log user in
 	$.post("/logIn",body).done(function() {
 		console.log("You are now logged in");
