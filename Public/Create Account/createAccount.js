@@ -2,12 +2,12 @@
 //This will run when the form is submitted
 $("#submitBtn").click(function() {
 	//prepares data to be sent
-	body= {
+	let body= {
 		email:$("#email")[0].value,
 		password:$("#password")[0].value
 	};
 	//This sends the post request to the server
-	$.post("/createAccount",body).done(accountCreated(body)).fail(accountNotCreated);
+	$.post("/createAccount",body).done(function() {accountCreated(body)}).fail(accountNotCreated);
 });
 
 
