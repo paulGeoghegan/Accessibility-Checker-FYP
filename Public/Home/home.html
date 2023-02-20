@@ -1,6 +1,6 @@
 <!-- This will be the page where the user can enter a URL to generate a report for -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<title> Home Page </title>
 	</head>
@@ -11,12 +11,12 @@
 
 	<div id="middleOfPage">
 
-		<p> Enter an image URL to generate alt text for</p>
+		<p> Enter a website URL to generate an accessibility report for </p>
 
 		<form action="/" method="post"/>
-			<label for="userImage">Image URL</label>
-			<input id="userImage" type="url" name="userImageURL"  /></br>
-			<input id="submitAltTextForm" type="submit" name="Generate Alt Text" aria-label="Generate Alt Text"/>
+			<label for="userURL">Website URL</label>
+			<input id="userURL" type="url" name="userURL" required  /></br>
+			<input type="submit" value="Generate Report" aria-label="Generate Report"/>
 		</form>
 
 	</div>

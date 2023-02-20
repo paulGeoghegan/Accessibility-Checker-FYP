@@ -1,6 +1,4 @@
 require("dotenv").config();
-const ComputerVisionClient = require('@azure/cognitiveservices-computervision').ComputerVisionClient;
-const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
@@ -10,14 +8,8 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 const db = require("./dbManager.js")
+const generateReport = require("./generateReport.js");
 
-
-//Gets key and endpoint from .env file for computer vision
-const microsoft_computer_vision_key = process.env.mskey;
-const microsoft_computer_vision_endpoint = process.env.msendpoint;
-
-//Creates client
-const computerVisionClient = new ComputerVisionClient(new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': microsoft_computer_vision_key } }), microsoft_computer_vision_endpoint);
 
 //Sets up express server
 const app = express();
@@ -87,10 +79,10 @@ app.get("/", function(req, res) {
 
 //This handles the post request for when the user enters a URL
 app.post("/", function(req, res) {
-	console.log("Getting Alt Text");
-	//This stores the URL for the image the user wants described
-	req.session.imageURL = req.body.userImageURL;
-	console.log(req.session.imageURL)
+	console.log("Getting Website URL");
+	//This stores the URL of the website for the report the user wants generated
+	req.session.websiteURL = req.body.userURL;
+	console.log(req.session.websiteURL)
 	//Redirects to the Report page
 	res.redirect("/report");
 });
@@ -128,11 +120,11 @@ app.post("/createAccount", function(req, res) {
 //This checks if the user is logged in or not
 app.get("/isLoggedIn", function(req, res) {
 	if(req.isAuthenticated()) {
-		link = '<a href="/account">Account</a>'
+		let link = '<a href="/account">Account</a>'
 		res.status(200).send(link);
 	}
 	else {
-		link = '<a href="/createAccount">Create Account</a>\t<a href="/logIn">Log In</a>'
+		let link = '<a href="/createAccount">Create Account</a>\t<a href="/logIn">Log In</a>'
 		res.status(200).send(link);
 	}
 });
@@ -183,31 +175,14 @@ app.get("/report", function(req, res) {
 
 //This root will generate and send the website report
 app.get("/createReport", async function(req, res) {
-	console.log(req.session.imageURL);
+	console.log(req.session.websiteURL);
 
-	results = await generateAltText(req.session.imageURL);
-	res.status(200).send(results);
+	//This will generate the report for the user
+	let report = await generateReport.create(req.session.websiteURL);
+
+	res.status(200).send(report);
 
 });
-
-//This function handles sending the request to azure computer vision
-async function generateAltText(image) {
-
-	//This stores the features the user wants returned
-	features = ['ImageType', 'Faces', 'Adult', 'Categories', 'Color', 'Tags', 'Description', 'Objects', 'Brands'];
-	domainDetails = ['Celebrities', 'Landmarks'];
-
-	//Gets results
-	results = await computerVisionClient.analyzeImage(image,{visualFeatures: features});
-	console.log("Results:");
-	console.log(results.description["captions"][0].text);
-
-	return results.description["captions"][0].text;
-}
-
-function cb(ex) {
-	console.log(ex);
-}
 
 //This function checks if the user is logged in
 function loggedIn() {

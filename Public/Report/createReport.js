@@ -13,7 +13,8 @@ function handleErrors(ex) {
 }
 
 //Handles the get request if it is a success
-function addReport(results) {
+function addReport(report) {
 	console.log("Report creation started");
-	$("#middleOfPage").append(results);
+	console.log(report);
+	$("#middleOfPage").append(report["images"]);
 }
