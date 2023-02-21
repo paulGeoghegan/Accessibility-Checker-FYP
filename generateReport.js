@@ -20,23 +20,20 @@ module.exports={
 //This will be the main function that handles generating the report for the user
 async function create(url) {
 
-	console.log("Starting");
 	const report = {};
 	//This retrieves the html from the given URL
 	const response = await axios.get(url);
 	//This sets up the dom using cheerio
 	const $ = cheerio.load(response.data);
-	console.log("image List");
 	let imageList = $("img");
-	console.log(imageList[0].name,imageList[0].attribs["src"],imageList[0].attribs["alt"]);
 
 	//Loops through list and checks if they have alt text
 	for(let img of imageList) {
-		if(!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ") {
-
+		if(img.name == "img" && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
+			console.log(url+img.attribs["src"]);
+			report["images"][img.attribs["src"]] = await generateAltText(url+img.attribs["src"]);
 		}
 	}
-	//report["images"] = await generateAltText(url);
 	console.log(report);
 
 	return report;
