@@ -13,7 +13,8 @@ const computerVisionClient = new ComputerVisionClient(new ApiKeyCredentials({ in
 
 //Sets up functions that will be exported
 module.exports={
-	create:create
+	create:create,
+	generateAltText:generateAltText
 }
 
 
@@ -30,8 +31,8 @@ async function create(url) {
 	//Loops through list and checks if they have alt text
 	for(let img of imageList) {
 		if(img.name == "img" && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
-			console.log(url+img.attribs["src"]);
-			report["images"][img.attribs["src"]] = await generateAltText(url+img.attribs["src"]);
+			console.log(img.attribs["src"]);
+			report["images"][img.attribs["src"]] = await generateAltText("https:"+img.attribs["src"]);
 		}
 	}
 	console.log(report);
