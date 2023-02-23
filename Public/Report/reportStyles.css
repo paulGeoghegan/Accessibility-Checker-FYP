@@ -1,0 +1,8 @@
+
+details summary{
+	cursor: pointer;
+}
+
+details summary > *{
+	display: inline;
+}

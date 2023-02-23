@@ -1,4 +1,6 @@
 
+const report = {};
+
 //This waits till the page has loaded
 if(document.readyState) {
 	console.log("Creating report");
@@ -16,5 +18,29 @@ function handleErrors(ex) {
 function addReport(report) {
 	console.log("Report creation started");
 	console.log(report);
-	$("#middleOfPage").append(report["images"]);
+	tableView("images");
+}
+
+//This function will create the table view for the report
+function tableView(sectionType) {
+	//Sets up variables
+	let div = $("#"+sectionType+"Div")
+	let table = $("<table>");
+
+	//Clears div
+	div.innerHTML="";
+
+	//Sets up headings
+	if(sectionType == "images") {
+	table.append("<tr><th>Source</th><th>Alt Text</th></tr>");
+	}
+
+	//Loops through report and adds rows to table
+	for(let img in report[sectionType]) {
+		console.log(img);
+	}
+
+	//Appends table
+	div.append(table);
+
 }
