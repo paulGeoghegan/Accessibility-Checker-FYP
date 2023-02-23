@@ -21,18 +21,27 @@ module.exports={
 //This will be the main function that handles generating the report for the user
 async function create(url) {
 
-	const report = {};
+	const report = {images:{}};
 	//This retrieves the html from the given URL
 	const response = await axios.get(url);
 	//This sets up the dom using cheerio
 	const $ = cheerio.load(response.data);
 	let imageList = $("img");
 
-	//Loops through list and checks if they have alt text
 	for(let img of imageList) {
-		if(img.name == "img" && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
-			console.log(img.attribs["src"]);
-			report["images"][img.attribs["src"]] = await generateAltText("https:"+img.attribs["src"]);
+		if(img.name == "img" && img.attribs["width"] >= 50 && img.attribs["height"] >= 50 && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
+	//Loops through list and checks if they have alt text
+			if(!img.attribs["data-lazyload"] && !img.attribs["data-lazy-src"]) {
+				console.log("Image without lazy-load",img.attribs);
+				report["images"][img.attribs["src"]] = await generateAltText(img.attribs["src"]);
+			}
+			else if(img.attribs["data-lazy-src"]) {
+				console.log("Image with lazy-src",img.attribs);
+				report["images"][img.attribs["data-lazy-src"]] = await generateAltText(img.attribs["data-lazy-src"]);
+			} else {
+				console.log("Image with lazy-load",img.attribs);
+				report["images"][img.attribs["data-lazyload"]] = await generateAltText("https:"+img.attribs["data-lazyload"]);
+			}
 		}
 	}
 	console.log(report);
