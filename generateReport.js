@@ -21,7 +21,7 @@ module.exports={
 //This will be the main function that handles generating the report for the user
 async function create(url) {
 
-	const report = {images:{}};
+	const report = {images:{},"url":url};
 	//This retrieves the html from the given URL
 	const response = await axios.get(url);
 	//This sets up the dom using cheerio
@@ -40,7 +40,7 @@ async function create(url) {
 				report["images"][img.attribs["data-lazy-src"]] = await generateAltText(img.attribs["data-lazy-src"]);
 			} else {
 				console.log("Image with lazy-load",img.attribs);
-				report["images"][img.attribs["data-lazyload"]] = await generateAltText("https:"+img.attribs["data-lazyload"]);
+				report["images"]["https:"+img.attribs["data-lazyload"]] = await generateAltText("https:"+img.attribs["data-lazyload"]);
 			}
 		}
 	}

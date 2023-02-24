@@ -6,3 +6,21 @@ details summary{
 details summary > *{
 	display: inline;
 }
+
+table{
+	width: 100%;
+	border-collapse: collapse;
+}
+
+table td{
+	border: 1px solid black;
+	text-align: center;
+}
+
+img{
+	display: block;
+}
+
+.imgtd{
+	width: 15%;
+}
