@@ -57,10 +57,9 @@ passport.serializeUser(function(user,done) {
 });
 
 //This will find an deserialize the user
-passport.deserializeUser(function(id,done) {
-	db.deserializeUser(id).then(function(row) {
-		console.log("User found id is:",row.id);
-		done(null,row.id)
+passport.deserializeUser(function(user,done) {
+	db.deserializeUser(user).then(function(row) {
+		done(null,row.email);
 	}).catch(function(ex) {
 		console.error(ex);
 	})
@@ -84,6 +83,11 @@ app.post("/", function(req, res) {
 	console.log(req.session.websiteURL)
 	//Redirects to the Report page
 	res.redirect("/report");
+});
+
+//This serves the account page
+app.get("/account", loggedIn, function(req,res) {
+	res.sendFile(__dirname+"/Public/Account/account.html");
 });
 
 //This serves the user the Create Account page
@@ -116,6 +120,12 @@ app.post("/createAccount", function(req, res) {
 	});
 });
 
+//This gets the users email to be displayed on the account page
+app.get("/getUserEmail", function(req,res) {
+	console.log(req.user);
+	res.send(req.user);
+});
+
 //This checks if the user is logged in or not
 app.get("/isLoggedIn", function(req, res) {
 	if(req.isAuthenticated()) {
@@ -138,6 +148,19 @@ app.post("/logIn", passport.authenticate("local", {
 	successRedirect:"/",
 	failureRedirect:"/logIn"
 }) );
+
+//This will handle logging the user out
+app.delete("/logOut", function(req,res) {
+	console.log("Logging user out");
+	req.logOut(function(ex) {
+		if(ex) {
+			console.log(ex);
+		}
+		else {
+			console.log("Redirecting");
+		}
+	});
+});
 
 //This serves the user the My Reports page
 app.get("/myReports", loggedIn, function(req, res) {

@@ -44,7 +44,7 @@ function deserializeUser(id) {
 	//Creates prepared statement
 	const deserializeExistingUser = new PS({
 		name: "deserializeUser",
-		text: "SELECT id FROM users WHERE id = $1;",
+		text: "SELECT id, email FROM users WHERE id = $1;",
 		values: [id],
 	});
 
