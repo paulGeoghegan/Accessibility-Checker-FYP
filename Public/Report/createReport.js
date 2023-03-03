@@ -50,8 +50,8 @@ function tableView(report,sectionType) {
 	}
 
 	//Loops through report and adds rows to table
-	for(let key in report[sectionType]) {
-		tableBody.append(`<tr><td class="imgtd"><img src="`+key+`" alt="`+report[sectionType][key]+`" width="100%" height="100%"></td><td><a href="`+key+`">`+key+`</a></td><td>`+report[sectionType][key]+`</td></tr>`);
+	for(let key in report[sectionType].value) {
+		tableBody.append(`<tr><td class="imgtd"><img src="`+key+`" alt="`+report[sectionType].value[key]+`" width="100%" height="100%"></td><td><a href="`+key+`">`+key+`</a></td><td>`+report[sectionType].value[key]+`</td></tr>`);
 	}
 
 	//Appends tableBody

@@ -18,11 +18,11 @@ function accountCreated(body) {
 	$.post("/logIn",body).done(function() {
 		console.log("You are now logged in");
 		window.location.replace("/");
-	}).fail(function(ex) {
-		console.error(ex);
+	}).fail(function(ex,message) {
+		console.error(ex,message);
 	});
 }
 
-function accountNotCreated(ex) {
+function accountNotCreated(ex,message) {
 	console.error(ex);
 }

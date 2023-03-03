@@ -36,13 +36,12 @@ passport.use(new LocalStrategy({usernameField:'email', passwordField:'password'}
 		else {
 			//This compairs the passwords
 			bcrypt.compare(password,row.password,function(ex,result) {
-				//Checks if they match
-				if(result == true) {
+				if(result) {
 					//Sets up user
 					done(null,row.id);
 				}
 				else {
-					return done(ex,false,"Incorrect password");
+					return done(null,false,"Incorrect password");
 				}
 			})
 		}
@@ -54,7 +53,7 @@ passport.use(new LocalStrategy({usernameField:'email', passwordField:'password'}
 
 passport.serializeUser(function(user,done) {
 	console.log(user,done);
-	done(null,user.id);
+	done(null,user);
 });
 
 //This will find an deserialize the user
@@ -131,39 +130,17 @@ app.get("/isLoggedIn", function(req, res) {
 
 //This serves the log in page
 app.get("/logIn", function(req,res) {
-	res.sendFile(__dirname + "/public/Log In/login.html");
+	res.sendFile(__dirname + "/Public/Log In/login.html");
 });
 
 //This route will handle logging the user in
-app.post("/logIn", function(req,res) {
-	console.log("Logging user in");
-	passport.authenticate("local",function(ex,user,info) {
-		console.log("Authentication");
-		if(ex) {
-			console.error(ex);
-			res.status(403).send(ex);
-		}
-		else if(!user) {
-			console.log(info);
-			res.status(400).send(info);
-		}
-		else {
-			req.logIn(user,function(ex) {
-				if(ex) {
-					console.error(ex);
-					res.status(400).send(ex);
-				}
-				else {
-					console.log("User now authenticated");
-					res.status(200).send("Success");
-				}
-			})
-		}
-	});
-});
+app.post("/logIn", passport.authenticate("local", {
+	successRedirect:"/",
+	failureRedirect:"/logIn"
+}) );
 
 //This serves the user the My Reports page
-app.get("/myReports", function(req, res) {
+app.get("/myReports", loggedIn, function(req, res) {
 	res.sendFile(__dirname + "/Public/My Reports/myReports.html");
 });
 
@@ -185,11 +162,11 @@ app.get("/createReport", async function(req, res) {
 });
 
 //This function checks if the user is logged in
-function loggedIn() {
-	return function(req, res, next) {
-		if(req.isAuthenticated()) {
-			return next();
-		}
+function loggedIn(req,res,next) {
+	if(req.isAuthenticated()) {
+		return next();
+	}
+	else {
 		res.redirect("/logIn");
 	}
 }

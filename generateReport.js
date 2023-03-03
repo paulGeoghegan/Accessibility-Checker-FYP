@@ -21,45 +21,60 @@ module.exports={
 //This will be the main function that handles generating the report for the user
 async function create(url) {
 
-	const report = {images:{},"url":url};
+	//Defines report object
+	let report = {images:{},buttons:{},"url":url};
 	//This retrieves the html from the given URL
 	const response = await axios.get(url);
 	//This sets up the dom using cheerio
 	const $ = cheerio.load(response.data);
 	let imageList = $("img");
+	let buttonList = $("button");
 
-	for(let img of imageList) {
-		if(img.name == "img" && img.attribs["width"] >= 50 && img.attribs["height"] >= 50 && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
-	//Loops through list and checks if they have alt text
-			if(!img.attribs["data-lazyload"] && !img.attribs["data-lazy-src"]) {
-				console.log("Image without lazy-load",img.attribs);
-				report["images"][img.attribs["src"]] = await generateAltText(img.attribs["src"]);
-			}
-			else if(img.attribs["data-lazy-src"]) {
-				console.log("Image with lazy-src",img.attribs);
-				report["images"][img.attribs["data-lazy-src"]] = await generateAltText(img.attribs["data-lazy-src"]);
-			} else {
-				console.log("Image with lazy-load",img.attribs);
-				report["images"]["https:"+img.attribs["data-lazyload"]] = await generateAltText("https:"+img.attribs["data-lazyload"]);
-			}
-		}
-	}
-	console.log(report);
+	//Calls async functions for report generation
+	[report["images"],report["buttons"]] = await Promise.allSettled([generateAltText(imageList),generateButtonText(buttonList)]);
 
 	return report;
 
 }
 
 //This function handles sending the request to azure computer vision
-async function generateAltText(image) {
+async function generateAltText(imageList) {
 
 	//This stores the features the user wants returned
 	let features = ['ImageType', 'Faces', 'Adult', 'Categories', 'Color', 'Tags', 'Description', 'Objects', 'Brands'];
+	let images = {};
 
-	//Gets results
-	let results = await computerVisionClient.analyzeImage(image,{visualFeatures: features});
-	console.log("Results:");
-	console.log(results.description["captions"][0].text);
+//Loops through the list of images
+	for(let img of imageList) {
+		if(img.name == "img" && img.attribs["width"] >= 50 && img.attribs["height"] >= 50 && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
+			//This will check where the images src is located in the html
+			if(!img.attribs["data-lazyload"] && !img.attribs["data-lazy-src"]) {
+				images[img.attribs["src"]] = await computerVisionClient.analyzeImage(img.attribs["src"],{visualFeatures: features});
+				images[img.attribs["src"]] = images[img.attribs["src"]].description["captions"][0].text;
+			}
+			else if(img.attribs["data-lazy-src"]) {
+				images[img.attribs["data-lazy-src"]] = await computerVisionClient.analyzeImage(img.attribs["data-lazy-src"],{visualFeatures: features});
+				images[img.attribs["data-lazy-src"]] = images[img.attribs["data-lazy-src"]].description["captions"][0].text;
+			} else {
+				images["https:"+img.attribs["data-lazyload"]] = await computerVisionClient.analyzeImage("https:"+img.attribs["data-lazyload"],{visualFeatures: features});
+			images["https:"+img.attribs["data-lazyload"]] = images["https:"+img.attribs["data-lazyload"]].description["captions"][0].text;
+			}
+		}
+	}
 
-	return results.description["captions"][0].text;
+	return images;
+}
+
+
+//This function will use the button id to generate sugested text for the button
+async function generateButtonText(buttonList) {
+	for(let button of buttonList) {
+		if(button.name == "button" || button.type == "button") {
+			console.log("Button here!",button);
+		}
+		else {
+			console.log("Not a button");
+		}
+	}
+	return buttonList;
 }
