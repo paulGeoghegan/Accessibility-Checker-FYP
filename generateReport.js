@@ -13,8 +13,7 @@ const computerVisionClient = new ComputerVisionClient(new ApiKeyCredentials({ in
 
 //Sets up functions that will be exported
 module.exports={
-	create:create,
-	generateAltText:generateAltText
+	create:create
 }
 
 
@@ -22,16 +21,17 @@ module.exports={
 async function create(url) {
 
 	//Defines report object
-	let report = {images:{},buttons:{},"url":url};
+	let report = {images:{},buttons:{},inputs:{},"url":url};
 	//This retrieves the html from the given URL
 	const response = await axios.get(url);
 	//This sets up the dom using cheerio
 	const $ = cheerio.load(response.data);
 	let imageList = $("img");
 	let buttonList = $("button");
+	let inputList = $("input");
 
 	//Calls async functions for report generation
-	[report["images"],report["buttons"]] = await Promise.allSettled([generateAltText(imageList),generateButtonText(buttonList)]);
+	[report["images"],report["buttons"],report["inputs"]] = await Promise.allSettled([generateAltText(imageList),generateButtonText(buttonList),generateInputSuggestions(inputList)]);
 
 	return report;
 
@@ -65,16 +65,43 @@ async function generateAltText(imageList) {
 	return images;
 }
 
-
-//This function will use the button id to generate sugested text for the button
+//This function will use the button id to generate suggested text for the button
 async function generateButtonText(buttonList) {
+	let buttons = {}
 	for(let button of buttonList) {
-		if(button.name == "button" || button.type == "button") {
-			console.log("Button here!",button);
-		}
-		else {
-			console.log("Not a button");
+		if((button.attribs["value"] == "" || !button.attribs["value"]) && (button.attribs["aria-label"] == "" || !button.attribs["aria-label"]) && (button.attribs["aria-labelledby"] == "" || !button.attribs["aria-labelledby"])) {
+			if(button.attribs["id"] != "") {
+				buttons[button.attribs["id"]] = generateText(button.attribs["id"]);
+			}
+			else if(button.attribs["name"] != "") {
+				buttons[button.attribs["name"]] = generateText(button.attribs["name"]);
+			}
+			else if(button.attribs["class"]) {
+				buttons[button.attribs["class"]] = generateText(button.attribs["class"]);
+			}
+			else {
+				console.log("Couldn't label:",button.attribs);
+			}
 		}
 	}
-	return buttonList;
+	console.log(buttons);
+	return buttons;
+}
+
+//This will loop through the input elements and generate suggestions for each one
+function generateInputSuggestions(inputList) {
+	let inputs = {};
+	for(let input of inputList) {
+		if(input.attribs["type"] == "button" && input.attribs["value"] == "" && (input.attribs["aria-label"] == "" || input.attribs["aria-labelledby"] == "")) {
+			console.log("input",input.attribs);
+		}
+	}
+	return inputs;
+}
+
+//This will take some text and try to use it to generate a suggested name for the element
+function generateText(text) {
+	console.log(text);
+	let newText = text.split(/(?=[A-Z])|-|_/);
+	return newText.join(" ");
 }
