@@ -1,0 +1,22 @@
+
+body{
+	background-color: lightgray;
+}
+
+#skipToContent{
+	font-size: 0%;
+}
+
+nav{
+	padding: 1%;
+	background-color: navy;
+}
+
+nav a{
+	color: lightgray;
+	margin-right: 1%;
+}
+
+h1{
+	color: navy;
+}
