@@ -43,22 +43,29 @@ async function generateAltText(imageList) {
 	//This stores the features the user wants returned
 	let features = ['ImageType', 'Faces', 'Adult', 'Categories', 'Color', 'Tags', 'Description', 'Objects', 'Brands'];
 	let images = {};
+	let altText;
+	let imgSrc;
 
 //Loops through the list of images
 	for(let img of imageList) {
 		if(img.name == "img" && img.attribs["width"] >= 50 && img.attribs["height"] >= 50 && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
 			//This will check where the images src is located in the html
 			if(!img.attribs["data-lazyload"] && !img.attribs["data-lazy-src"]) {
-				images[img.attribs["src"]] = await computerVisionClient.analyzeImage(img.attribs["src"],{visualFeatures: features});
-				images[img.attribs["src"]] = images[img.attribs["src"]].description["captions"][0].text;
+				altText = await computerVisionClient.analyzeImage(img.attribs["src"],{visualFeatures: features});
+				altText = altText.description["captions"][0].text;
+				imgSrc = img.attribs["src"];
 			}
 			else if(img.attribs["data-lazy-src"]) {
-				images[img.attribs["data-lazy-src"]] = await computerVisionClient.analyzeImage(img.attribs["data-lazy-src"],{visualFeatures: features});
-				images[img.attribs["data-lazy-src"]] = images[img.attribs["data-lazy-src"]].description["captions"][0].text;
+				altText = await computerVisionClient.analyzeImage(img.attribs["data-lazy-src"],{visualFeatures: features});
+				altText = altText.description["captions"][0].text;
+				imgSrc = img.attribs["data-lazy-src"];
 			} else {
-				images["https:"+img.attribs["data-lazyload"]] = await computerVisionClient.analyzeImage("https:"+img.attribs["data-lazyload"],{visualFeatures: features});
-			images["https:"+img.attribs["data-lazyload"]] = images["https:"+img.attribs["data-lazyload"]].description["captions"][0].text;
+				altText = await computerVisionClient.analyzeImage("https:"+img.attribs["data-lazyload"],{visualFeatures: features});
+				altText = altText.description["captions"][0].text;
+				imgSrc = "https:"+img.attribs["data-lazyload"];
 			}
+			//Assignes to object
+			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText]
 		}
 	}
 
@@ -71,20 +78,19 @@ async function generateButtonText(buttonList) {
 	for(let button of buttonList) {
 		if((button.attribs["value"] == "" || !button.attribs["value"]) && (button.attribs["aria-label"] == "" || !button.attribs["aria-label"]) && (button.attribs["aria-labelledby"] == "" || !button.attribs["aria-labelledby"])) {
 			if(button.attribs["id"] != "") {
-				buttons[button.attribs["id"]] = generateText(button.attribs["id"]);
+				buttons[button.attribs["id"]] = [button.type,"ID: "+button.attribs["id"],generateText(button.attribs["id"])];
 			}
 			else if(button.attribs["name"] != "") {
-				buttons[button.attribs["name"]] = generateText(button.attribs["name"]);
+				buttons[button.attribs["name"]] = [button.type,"Name: "+button.attribs["name"],generateText(button.attribs["name"])];
 			}
 			else if(button.attribs["class"]) {
-				buttons[button.attribs["class"]] = generateText(button.attribs["class"]);
+			buttons[button.attribs["class"]] = [button.type,"Class: "+button.attribs["class"],generateText(button.attribs["class"])];
 			}
 			else {
 				console.log("Couldn't label:",button.attribs);
 			}
 		}
 	}
-	console.log(buttons);
 	return buttons;
 }
 
@@ -92,8 +98,8 @@ async function generateButtonText(buttonList) {
 function generateInputSuggestions(inputList) {
 	let inputs = {};
 	for(let input of inputList) {
-		if(input.attribs["type"] == "button" && input.attribs["value"] == "" && (input.attribs["aria-label"] == "" || input.attribs["aria-labelledby"] == "")) {
-			console.log("input",input.attribs);
+		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
+			console.log("input:",input.attribs);
 		}
 	}
 	return inputs;

@@ -16,7 +16,6 @@ function handleErrors(ex) {
 //Handles the get request if it is a success
 function addReport(report) {
 	console.log("Report creation started");
-	console.log(report["images"]);
 
 	//This clears the middleOfPage div
 	$("#middleOfPage").empty();
@@ -26,11 +25,16 @@ function addReport(report) {
 		<h3> Your Report </h3>
 		<p> Report generated for: <a href="`+report["url"]+`">`+report["url"]+`</a></p>
 		<details>
+			<summary><h3>Buttons</h3></summary>
+			<div id="buttonsDiv"></div>
+		</details>
+		<details>
 			<summary><h3>Images</h3></summary>
 			<div id="imagesDiv"></div>
 		</details>
 `);
 
+	tableView(report,"buttons");
 	tableView(report,"images");
 }
 
@@ -45,13 +49,16 @@ function tableView(report,sectionType) {
 	div.empty();
 
 	//Sets up headings
-	if(sectionType == "images") {
+	if(sectionType == "buttons") {
+	table.append("<thead><tr><th>Type</th><th>Identifier</th><th>Suggested aria-label</th></tr></thead>");
+	}
+	else if(sectionType == "images") {
 	table.append("<thead><tr><th>Image</th><th>Source</th><th>Alt Text</th></tr></thead>");
 	}
 
 	//Loops through report and adds rows to table
 	for(let key in report[sectionType].value) {
-		tableBody.append(`<tr><td class="imgtd"><img src="`+key+`" alt="`+report[sectionType].value[key]+`" width="100%" height="100%"></td><td><a href="`+key+`">`+key+`</a></td><td>`+report[sectionType].value[key]+`</td></tr>`);
+	tableBody.append(`<tr><td class="imgtd">`+report[sectionType].value[key][0]+`</td><td>`+report[sectionType].value[key][1]+`</td><td>`+report[sectionType].value[key][2]+`</td></tr>`);
 	}
 
 	//Appends tableBody
