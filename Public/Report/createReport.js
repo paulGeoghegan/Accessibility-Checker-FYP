@@ -1,4 +1,5 @@
 
+let report;
 
 //This waits till the page has loaded
 if(document.readyState) {
@@ -14,16 +15,28 @@ function handleErrors(ex) {
 }
 
 //Handles the get request if it is a success
-function addReport(report) {
+function addReport(data) {
+	report = data;
 	console.log("Report creation started");
 
 	//This clears the middleOfPage div
 	$("#middleOfPage").empty();
 
-	//This appends some text at the top of the report
 	$("#middleOfPage").append(`
 		<h3> Your Report </h3>
 		<p> Report generated for: <a href="`+report["url"]+`">`+report["url"]+`</a></p>
+		<input id="saveReportBtn" type="button" value="Save" onclick="displayModal()">
+		<div id="saveModal" class="modal" onclick="hideModal()">
+			<div class="modalContent">
+				<span class="close" onclick="hideModal()">&times;</span>
+				<h3>Save This Report</h3>
+				<form id="saveDetails">
+					<label for="reportName">Report Name</label>
+					<input id="reportName" type="text" value="`+report["url"]+`"></br></br>
+					<input type="button" value="Save" onclick="saveReport()">
+				</form>
+			</div>
+		</div>
 		<details>
 			<summary><h3>Buttons</h3></summary>
 			<div id="buttonsDiv"></div>
@@ -34,12 +47,12 @@ function addReport(report) {
 		</details>
 `);
 
-	tableView(report,"buttons");
-	tableView(report,"images");
+	tableView("buttons");
+	tableView("images");
 }
 
 //This function will create the table view for the report
-function tableView(report,sectionType) {
+function tableView(sectionType) {
 	//Sets up variables
 	let div = $("#"+sectionType+"Div")
 	let table = $("<table>");
@@ -66,5 +79,18 @@ function tableView(report,sectionType) {
 
 	//Appends table
 	div.append(table);
+
+}
+
+function displayModal() {
+	$("#saveModal").css("display","block");
+	$("#reportName").focus().select();
+}
+
+function hideModal() {
+	$("#saveModal").css("display","none");
+}
+
+async function saveReport() {
 
 }

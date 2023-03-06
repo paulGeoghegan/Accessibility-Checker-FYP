@@ -129,11 +129,11 @@ app.get("/getUserEmail", function(req,res) {
 //This checks if the user is logged in or not
 app.get("/isLoggedIn", function(req, res) {
 	if(req.isAuthenticated()) {
-		let link = '<a href="/account">Account</a>'
+		let link = '<a class="accountLinks" href="/account">Account</a>'
 		res.status(200).send(link);
 	}
 	else {
-		let link = '<a href="/createAccount">Create Account</a>\t<a href="/logIn">Log In</a>'
+		let link = '<a class="accountLinks" href="/createAccount">Create Account</a><a class="accountLinks" href="/logIn">Log In</a>'
 		res.status(200).send(link);
 	}
 });

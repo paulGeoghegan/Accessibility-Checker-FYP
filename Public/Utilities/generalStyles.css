@@ -17,6 +17,6 @@ nav a{
 	margin-right: 1%;
 }
 
-h1{
-	color: navy;
+.accountLinks{
+	float: right;
 }
