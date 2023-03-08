@@ -92,5 +92,14 @@ function hideModal() {
 }
 
 async function saveReport() {
-
+	let body = {
+		reportName:$("#reportName")[0].value,
+		report:report
+	};
+	$.post("/saveReport",body).done(function() {
+		console.log("Report Saved");
+		alert("Your report was saved successfully");
+	}).fail(function(ex) {
+		console.error(ex);
+	});
 }

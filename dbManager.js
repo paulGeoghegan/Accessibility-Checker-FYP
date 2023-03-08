@@ -6,48 +6,60 @@ const { PreparedStatement: PS } = require('pg-promise');
 const dbCon = pgp(`postgres://${process.env.pgUsername}:${process.env.pgPassword}@localhost:5432/${process.env.pgDBName}`);
 
 
-//Sets up db commands
 module.exports={
+	addReport:addReport,
 	addUser:addUser,
 	deserializeUser:deserializeUser,
-	findUser:findUser
+	findUser:findUser,
+	getAllReports:getAllReports
 };
 
-//Function for adding a user
+function addReport(userId, name, report) {
+	const insertNewReport = new PS({
+		name: "insertReport",
+		text: "INSERT INTO reports (userId, name, report) VALUES ($1, $2, $3);",
+		values: [userId, name, report],
+	});
+
+	return dbCon.none(insertNewReport);
+}
+
 function addUser(email, password) {
-	//Creates prepared statement
 	const insertNewUser = new PS({
 		name: "insertUser",
 		text: "INSERT INTO users (email, password) VALUES ($1, $2);",
 		values: [email, password],
 	});
 
-	//Executes prepared statement
 	return dbCon.none(insertNewUser);
 }
 
-//Function for finding a user
-function findUser(email) {
-	//Creates prepared statement
-	const findExistingUser = new PS({
-		name: "findUser",
-		text: "SELECT id, email, password FROM users WHERE email = $1;",
-		values: [email],
-	});
-
-	//Executes prepared statement
-	return dbCon.one(findExistingUser);
-}
-
-//Function for deserializing a user
 function deserializeUser(id) {
-	//Creates prepared statement
 	const deserializeExistingUser = new PS({
 		name: "deserializeUser",
 		text: "SELECT id, email FROM users WHERE id = $1;",
 		values: [id],
 	});
 
-	//Executes prepared statement
 	return dbCon.one(deserializeExistingUser);
+}
+
+function findUser(email) {
+	const findExistingUser = new PS({
+		name: "findUser",
+		text: "SELECT id, email, password FROM users WHERE email = $1;",
+		values: [email],
+	});
+
+	return dbCon.one(findExistingUser);
+}
+
+function getAllReports(id) {
+	const getReports = new PS({
+		name: "getReports",
+		text: "SELECT id, name, created FROM reports WHERE userId = $1;",
+		values: [id],
+	});
+
+	return dbCon.any(getReports);
 }

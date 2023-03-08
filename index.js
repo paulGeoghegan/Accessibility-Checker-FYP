@@ -59,7 +59,7 @@ passport.serializeUser(function(user,done) {
 //This will find an deserialize the user
 passport.deserializeUser(function(user,done) {
 	db.deserializeUser(user).then(function(row) {
-		done(null,row.email);
+		done(null,{"id":row.id,"email":row.email});
 	}).catch(function(ex) {
 		console.error(ex);
 	})
@@ -120,10 +120,20 @@ app.post("/createAccount", function(req, res) {
 	});
 });
 
+app.get("/getReports",async function(req,res) {
+	db.getAllReports(req.user.id).then(function(reportList) {
+		console.log(reportList);
+	res.status(200).send(reportList);
+	}).catch(function(ex) {
+		console.error(ex);
+		res.send(ex);
+	});
+});
+
 //This gets the users email to be displayed on the account page
 app.get("/getUserEmail", function(req,res) {
-	console.log(req.user);
-	res.send(req.user);
+	console.log(req.user.email);
+	res.send(req.user.email);
 });
 
 //This checks if the user is logged in or not
@@ -164,7 +174,7 @@ app.delete("/logOut", function(req,res) {
 
 //This serves the user the My Reports page
 app.get("/myReports", loggedIn, function(req, res) {
-	res.sendFile(__dirname + "/Public/My Reports/myReports.html");
+	res.sendFile(__dirname+"/Public/MyReports/myReports.html");
 });
 
 //This serves the user the report page
@@ -182,6 +192,17 @@ app.get("/createReport", async function(req, res) {
 
 	res.status(200).send(report);
 
+});
+
+app.post("/saveReport",function(req,res) {
+	console.log("Saving report:",req.body.reportName);
+		db.addReport(req.user.id,req.body.reportName,req.body.report).then(function() {
+			console.log("New report added");
+			res.status(204).send("report added");
+		}).catch(function(ex) {
+			console.error(ex);
+			res.status(403).send(ex);
+		});
 });
 
 //This function checks if the user is logged in
