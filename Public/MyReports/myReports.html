@@ -1,9 +1,10 @@
 <!-- This page will display the users previously saved reports -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<title> My Reports </title>
 	<link rel="stylesheet" type="text/css" href="Utilities/generalStyles.css">
+	<link rel="stylesheet" type="text/css" href="Utilities/reportStyles.css">
 </head>
 <body>
 
@@ -12,6 +13,22 @@
 
 	<div id="middleOfPage">
 		<h3> Your Reports </h3>
+
+		<div id="reportModal" class="modal" onclick="hideModal()">
+			<div id="reportModalContent" class="modalContent" tabindex="-1">
+				<span class="close" onclick="hideModal()">&times;</span>
+				<div id="reportInfo"></div>
+				<details>
+					<summary><h3>Buttons</h3></summary>
+					<div id="buttonsDiv"></div>
+				</details>
+				<details>
+					<summary><h3>Images</h3></summary>
+					<div id="imagesDiv"></div>
+				</details>
+				<div class="reportControls"></div>
+			</div>
+		</div>
 
 	</div>
 

@@ -64,8 +64,8 @@ async function generateAltText(imageList) {
 				altText = altText.description["captions"][0].text;
 				imgSrc = "https:"+img.attribs["data-lazyload"];
 			}
-			//Assignes to object
-			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText]
+			//Assigns to object
+			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText];
 		}
 	}
 

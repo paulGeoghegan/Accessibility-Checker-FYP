@@ -122,8 +122,7 @@ app.post("/createAccount", function(req, res) {
 
 app.get("/getReports",async function(req,res) {
 	db.getAllReports(req.user.id).then(function(reportList) {
-		console.log(reportList);
-	res.status(200).send(reportList);
+		res.status(200).send(reportList);
 	}).catch(function(ex) {
 		console.error(ex);
 		res.send(ex);
@@ -196,7 +195,7 @@ app.get("/createReport", async function(req, res) {
 
 app.post("/saveReport",function(req,res) {
 	console.log("Saving report:",req.body.reportName);
-		db.addReport(req.user.id,req.body.reportName,req.body.report).then(function() {
+		db.addReport(req.user.id,req.body.reportName,JSON.stringify(req.body.report)).then(function() {
 			console.log("New report added");
 			res.status(204).send("report added");
 		}).catch(function(ex) {

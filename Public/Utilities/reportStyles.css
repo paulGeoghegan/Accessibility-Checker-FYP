@@ -1,0 +1,52 @@
+
+details{
+	margin-top: 1%;
+}
+
+details summary{
+	cursor: pointer;
+}
+
+details summary > *{
+	display: inline;
+}
+
+table{
+	width: 100%;
+	border-collapse: collapse;
+}
+
+table td{
+	border: 1px solid black;
+	text-align: center;
+}
+
+#reportModalContent td{
+	border: 1px solid lightgray;
+}
+
+#reportModalContent a{
+	color: lightgray;
+}
+
+.reportControls{
+	margin-top: 1%;
+	text-align: center;
+}
+
+img{
+	display: block;
+}
+
+.imgtd{
+	width: 15%;
+}
+
+.name{
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.time{
+	width: 15%;
+}

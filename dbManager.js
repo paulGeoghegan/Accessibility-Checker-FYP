@@ -57,7 +57,7 @@ function findUser(email) {
 function getAllReports(id) {
 	const getReports = new PS({
 		name: "getReports",
-		text: "SELECT id, name, created FROM reports WHERE userId = $1;",
+		text: "SELECT id, name, created, report FROM reports WHERE userId = $1;",
 		values: [id],
 	});
 
