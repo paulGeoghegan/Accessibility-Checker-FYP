@@ -147,7 +147,14 @@ app.get("/isLoggedIn", function(req, res) {
 	}
 });
 
-//This serves the log in page
+app.get("/Learning",function(req,res) {
+	res.sendFile(__dirname+"/Public/Learning/learning.html");
+});
+
+app.get("/exampleBadPage",function(req,res) {
+	res.sendFile(__dirname+"/Public/Learning/Examples/badPage.html")
+});
+
 app.get("/logIn", function(req,res) {
 	res.sendFile(__dirname + "/Public/Log In/login.html");
 });
