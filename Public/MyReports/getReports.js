@@ -30,6 +30,7 @@ function openReport(id) {
 	`);
 	tableView(report.report,"buttons");
 	tableView(report.report,"images");
+	tableView(report.report,"inputs");
 	$(".reportControls").empty();
 	$(".reportControls").append(`
 		<input type="button" value="Download" onclick="downloadReport(`+report.id+`)">
@@ -47,6 +48,10 @@ function deleteReport(id) {
 function tableView(report,sectionType) {
 	//Sets up variables
 	let div = $("#"+sectionType+"Div")
+	if(jQuery.isEmptyObject(report[sectionType].value)) {
+		div.append("<p>No suggestions. Good job!</p>");
+		return;
+	}
 	let table = $("<table>");
 	let tableBody = $("<tbody>");
 
@@ -59,6 +64,9 @@ function tableView(report,sectionType) {
 	}
 	else if(sectionType == "images") {
 	table.append("<thead><tr><th>Image</th><th>Source</th><th>Alt Text</th></tr></thead>");
+	}
+	else if(sectionType == "inputs") {
+		table.append("<thead><tr><th>Type</th><th>Identifier</th><th>Suggested Changes</th></tr></thead>");
 	}
 
 	//Loops through report and adds rows to table

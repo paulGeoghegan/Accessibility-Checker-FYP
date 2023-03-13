@@ -31,14 +31,14 @@ async function create(url) {
 	let inputList = $("input");
 
 	//Calls async functions for report generation
-	[report["images"],report["buttons"],report["inputs"]] = await Promise.allSettled([generateAltText(imageList),generateButtonText(buttonList),generateInputSuggestions(inputList)]);
+	[report["images"],report["buttons"],report["inputs"]] = await Promise.allSettled([generateAltText(imageList,url),generateButtonText(buttonList),generateInputSuggestions(inputList)]);
 
 	return report;
 
 }
 
 //This function handles sending the request to azure computer vision
-async function generateAltText(imageList) {
+async function generateAltText(imageList,url) {
 
 	//This stores the features the user wants returned
 	let features = ['ImageType', 'Faces', 'Adult', 'Categories', 'Color', 'Tags', 'Description', 'Objects', 'Brands'];
@@ -48,22 +48,33 @@ async function generateAltText(imageList) {
 
 //Loops through the list of images
 	for(let img of imageList) {
-		if(img.name == "img" && img.attribs["width"] >= 50 && img.attribs["height"] >= 50 && (!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
+		if((!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
 			//This will check where the images src is located in the html
 			if(!img.attribs["data-lazyload"] && !img.attribs["data-lazy-src"]) {
-				altText = await computerVisionClient.analyzeImage(img.attribs["src"],{visualFeatures: features});
-				altText = altText.description["captions"][0].text;
 				imgSrc = img.attribs["src"];
 			}
 			else if(img.attribs["data-lazy-src"]) {
-				altText = await computerVisionClient.analyzeImage(img.attribs["data-lazy-src"],{visualFeatures: features});
-				altText = altText.description["captions"][0].text;
 				imgSrc = img.attribs["data-lazy-src"];
 			} else {
-				altText = await computerVisionClient.analyzeImage("https:"+img.attribs["data-lazyload"],{visualFeatures: features});
-				altText = altText.description["captions"][0].text;
-				imgSrc = "https:"+img.attribs["data-lazyload"];
+				imgSrc = img.attribs["data-lazyload"];
 			}
+			console.log("Checking URL",url);
+			//This makes sure the url is valid
+			if(imgSrc.startsWith("//")) {
+				imgSrc = url.split("//")[0]+imgSrc;
+			}
+			else if(imgSrc.startsWith("/")) {
+				imgSrc = url.split("/")[2]+imgSrc;
+			}
+			else if(!imgSrc.includes("://")) {
+				console.log("Test");
+				imgSrc = url+"/"+imgSrc;
+			}
+
+			console.log("Image URL:",imgSrc);
+			altText = await computerVisionClient.analyzeImage(imgSrc,{visualFeatures: features});
+			altText = altText.description["captions"][0].text;
+
 			//Assigns to object
 			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText];
 		}
@@ -78,7 +89,7 @@ async function generateButtonText(buttonList) {
 	for(let button of buttonList) {
 		if((button.attribs["value"] == "" || !button.attribs["value"]) && (button.attribs["aria-label"] == "" || !button.attribs["aria-label"]) && (button.attribs["aria-labelledby"] == "" || !button.attribs["aria-labelledby"])) {
 			if(button.attribs["id"] != "") {
-				buttons[button.attribs["id"]] = [button.type,"ID: "+button.attribs["id"],generateText(button.attribs["id"])];
+				buttons[button.attribs["id"]] = [button.attribs.type,"ID: "+button.attribs["id"],generateText(button.attribs["id"])];
 			}
 			else if(button.attribs["name"] != "") {
 				buttons[button.attribs["name"]] = [button.type,"Name: "+button.attribs["name"],generateText(button.attribs["name"])];
@@ -99,9 +110,21 @@ function generateInputSuggestions(inputList) {
 	let inputs = {};
 	for(let input of inputList) {
 		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
-			console.log("input:",input.attribs);
+			if(input.attribs["id"] != "") {
+				inputs[input.attribs["id"]] = [input.attribs.type,"ID: "+input.attribs["id"],generateText(input.attribs["id"])];
+			}
+			else if(input.attribs["name"] != "") {
+				inputs[input.attribs["name"]] = [input.attribs.type,"Name: "+input.attribs["name"],generateText(input.attribs["name"])];
+			}
+			else if(button.attribs["class"]) {
+			inputs[input.attribs["class"]] = [input.attribs.type,"Class: "+input.attribs["class"],generateText(input.attribs["class"])];
+			}
+			else {
+				console.log("Couldn't label:",input.attribs);
+			}
 		}
 	}
+	console.log(inputs);
 	return inputs;
 }
 

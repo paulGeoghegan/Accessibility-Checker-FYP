@@ -45,16 +45,26 @@ function addReport(data) {
 			<summary><h3>Images</h3></summary>
 			<div id="imagesDiv"></div>
 		</details>
+		<details>
+			<summary><h3>Inputs</h3></summary>
+			<div id="inputsDiv"></div>
+		</details>
 `);
 
 	tableView("buttons");
 	tableView("images");
+	tableView("inputs");
 }
 
 //This function will create the table view for the report
 function tableView(sectionType) {
 	//Sets up variables
 	let div = $("#"+sectionType+"Div")
+	if(jQuery.isEmptyObject(report[sectionType].value)) {
+		div.append("<p>No suggestions. Good job!</p>");
+		return;
+	}
+
 	let table = $("<table>");
 	let tableBody = $("<tbody>");
 
@@ -67,6 +77,9 @@ function tableView(sectionType) {
 	}
 	else if(sectionType == "images") {
 	table.append("<thead><tr><th>Image</th><th>Source</th><th>Alt Text</th></tr></thead>");
+	}
+	else if(sectionType == "inputs") {
+		table.append("<thead><tr><th>Type</th><th>Identifier</th><th>Suggested Changes</th></tr></thead>");
 	}
 
 	//Loops through report and adds rows to table
