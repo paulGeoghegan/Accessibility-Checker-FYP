@@ -26,9 +26,9 @@ function addReport(data) {
 		<h3> Your Report </h3>
 		<p> Report generated for: <a href="`+report["url"]+`">`+report["url"]+`</a></p>
 		<input id="saveReportBtn" type="button" value="Save" onclick="displayModal()">
-		<div id="saveModal" class="modal" onclick="hideModal()">
-			<div class="modalContent">
-				<span class="close" onclick="hideModal()">&times;</span>
+		<div id="saveModal" class="modal">
+			<div id="saveModalContent" class="modalContent">
+				<span id="saveModalClose" class="close" tabindex="0">&times;</span>
 				<h3>Save This Report</h3>
 				<form id="saveDetails">
 					<label for="reportName">Report Name</label>
@@ -49,7 +49,9 @@ function addReport(data) {
 			<summary><h3>Inputs</h3></summary>
 			<div id="inputsDiv"></div>
 		</details>
-`);
+	`);
+
+	addModalListeners("saveModal")
 
 	tableView("buttons");
 	tableView("images");

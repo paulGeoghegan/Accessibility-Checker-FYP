@@ -33,14 +33,13 @@ function openReport(id) {
 	tableView(report.report,"inputs");
 	$(".reportControls").empty();
 	$(".reportControls").append(`
-		<input type="button" value="Download" onclick="downloadReport(`+report.id+`)">
 		<input type="button" value="Delete" onclick="deleteReport(`+report.id+`)">
 	`);
+	addModalListeners("reportModal")
 	displayModal();
 }
 
 function deleteReport(id) {
-	console.log("deleting:",id);
 	displayModal();
 }
 
@@ -85,9 +84,5 @@ function tableView(report,sectionType) {
 function displayModal() {
 	$("#reportModal").css("display","block");
 	$("#reportModalContent").focus();
-}
-
-function hideModal() {
-	$("#reportModal").css("display","none");
 }
 
