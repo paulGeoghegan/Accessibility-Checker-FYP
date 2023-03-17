@@ -12,6 +12,16 @@ function addModalListeners(id) {
 }
 
 function hideModal(id) {
-	console.log(id)
 	$("#"+id).css("display","none");
+}
+
+function displayModal(id) {
+	$(".modal").css("display","none");
+	$("#"+id).css("display","flex");
+	if($("#"+id+" input:text").length) {
+		$("#"+id+" input:text").focus().select();
+	}
+	else {
+		$("#"+id+"Content").focus();
+	}
 }

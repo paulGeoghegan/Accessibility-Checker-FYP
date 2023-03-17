@@ -30,15 +30,18 @@ nav a{
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0,0,0,0.4);
+	flex-direction: column;
 }
 
 
 .modalContent{
 	background-color: navy;
 	color: lightgray;
-	margin: 20% auto;
+	margin: 15% auto;
 	padding: 1%;
 	width: 25%;
+	overflow-y: auto;
+	min-height: 0;
 }
 
 #reportModalContent{

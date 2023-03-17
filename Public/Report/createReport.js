@@ -1,7 +1,7 @@
 
 let report;
 
-//This waits till the page has loaded
+//This waits until the page has loaded
 if(document.readyState) {
 	console.log("Creating report");
 	//Sends request
@@ -25,7 +25,7 @@ function addReport(data) {
 	$("#middleOfPage").append(`
 		<h3> Your Report </h3>
 		<p> Report generated for: <a href="`+report["url"]+`">`+report["url"]+`</a></p>
-		<input id="saveReportBtn" type="button" value="Save" onclick="displayModal()">
+		<input id="saveReportBtn" type="button" value="Save" onclick="displayModal('saveModal')">
 		<div id="saveModal" class="modal">
 			<div id="saveModalContent" class="modalContent">
 				<span id="saveModalClose" class="close" tabindex="0">&times;</span>
@@ -51,7 +51,7 @@ function addReport(data) {
 		</details>
 	`);
 
-	addModalListeners("saveModal")
+	addModalListeners("saveModal");
 
 	tableView("buttons");
 	tableView("images");
@@ -95,15 +95,6 @@ function tableView(sectionType) {
 	//Appends table
 	div.append(table);
 
-}
-
-function displayModal() {
-	$("#saveModal").css("display","block");
-	$("#reportName").focus().select();
-}
-
-function hideModal() {
-	$("#saveModal").css("display","none");
 }
 
 async function saveReport() {

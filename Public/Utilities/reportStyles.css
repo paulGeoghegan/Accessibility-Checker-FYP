@@ -29,9 +29,13 @@ table td{
 	color: lightgray;
 }
 
-.reportControls{
+.modalControls{
 	margin-top: 1%;
 	text-align: center;
+}
+
+.modalControls h2{
+	font-size: 0%;
 }
 
 img{

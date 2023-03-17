@@ -120,6 +120,14 @@ app.post("/createAccount", function(req, res) {
 	});
 });
 
+app.delete("/deleteReport",function(req,res) {
+	db.deleteReport(req.body.reportId).then(function() {
+		res.status(200).send("Deleted");
+	}).catch(function(ex) {
+		console.error(ex);
+	})
+});
+
 app.get("/getReports",async function(req,res) {
 	db.getAllReports(req.user.id).then(function(reportList) {
 		res.status(200).send(reportList);

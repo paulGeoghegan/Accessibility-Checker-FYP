@@ -1,24 +1,28 @@
 
 let reportList;
+getReports()
 
-$.get("/getReports").done(function(data) {
-	reportList = data;
-	let table = $("<table>");
-	let tableBody = $("<tbody>");
+function getReports() {
+	$.get("/getReports").done(function(data) {
+		reportList = data;
+		let table = $("<table>");
+		let tableBody = $("<tbody>");
 
-	//Clears table body
-	tableBody.empty();
+		//Clears table body
+		tableBody.empty();
 
-	table.append("<thead><tr><th>Name</th><th>Page Link</h><th>Created</th><th>Action</th></tr></thead>");
+		table.append("<thead><tr><th>Name</th><th>Page Link</h><th>Created</th><th>Action</th></tr></thead>");
 
-	for(let report of reportList) {
-		tableBody.append(`<tr id="`+report.id+`"><td class="name"><a tabindex="0" onclick="openReport(`+report.id+`)">`+report.name+`</a></td><td><a href="`+report.report["url"]+`">`+report.report["url"]+`</a></td><td class="time">`+report.created+`</td><td><input type="button" value="Delete" onclick="deleteReport(`+report.id+`)"></td></tr>`);
-	}
+		for(let report of reportList) {
+			tableBody.append(`<tr id="`+report.id+`"><td class="name"><a tabindex="0" onclick="openReport(`+report.id+`)">`+report.name+`</a></td><td><a href="`+report.report["url"]+`">`+report.report["url"]+`</a></td><td class="time">`+report.created+`</td><td><input type="button" value="Delete" onclick="confirmDeleteReport(`+report.id+`)"></td></tr>`);
+		}
 
-	table.append(tableBody);
-	$("#middleOfPage").append(table);
+		table.append(tableBody);
+		$("#reportTableDiv").empty();
+		$("#reportTableDiv").append(table);
 
-});
+	});
+}
 
 function openReport(id) {
 	let report = reportList.find(element => element.id === id);
@@ -31,16 +35,40 @@ function openReport(id) {
 	tableView(report.report,"buttons");
 	tableView(report.report,"images");
 	tableView(report.report,"inputs");
-	$(".reportControls").empty();
-	$(".reportControls").append(`
-		<input type="button" value="Delete" onclick="deleteReport(`+report.id+`)">
+	$("#reportModal .modalControls").empty();
+	$("#reportModal .modalControls").append(`
+		<h2> Controls </h2>
+		<input type="button" value="Delete" onclick="confirmDeleteReport(`+report.id+`,true)">
 	`);
 	addModalListeners("reportModal")
-	displayModal();
+	displayModal("reportModal");
+}
+
+function confirmDeleteReport(id,reportOpen) {
+	displayModal("confirmDeleteModal");
+	addModalListeners("confirmDeleteModal");
+	$("#confirmDeleteModal .modalControls").empty();
+	$("#confirmDeleteModal .modalControls").append(`
+		<input type="button" value="Cancel" onclick="cancelDelete(`+reportOpen+`)">
+		<input type="button" value="Delete" onclick="deleteReport(`+id+`)">
+	`);
+}
+
+function cancelDelete(reportOpen) {
+	if(reportOpen) {
+		displayModal("reportModal");
+	}
+	else {
+		hideModal("confirmDeleteModal");
+	}
 }
 
 function deleteReport(id) {
-	displayModal();
+	$.ajax({url:"/deleteReport",type:"delete",data:{reportId:id},success:function() {
+		hideModal("confirmDeleteModal");
+		alert("Report Deleted")
+		getReports();
+	}});
 }
 
 //This function will create the table view for the report
@@ -79,10 +107,5 @@ function tableView(report,sectionType) {
 	//Appends table
 	div.append(table);
 
-}
-
-function displayModal() {
-	$("#reportModal").css("display","block");
-	$("#reportModalContent").focus();
 }
 

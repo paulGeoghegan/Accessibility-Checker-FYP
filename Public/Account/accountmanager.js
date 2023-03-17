@@ -1,7 +1,7 @@
 
 //This sends the request to log out the user
 $("#logOutBtn").click(function() {
-	$.ajax({url:"/logOut",type:"delete",success:	window.location.replace("/")});
+	$.ajax({url:"/logOut",type:"delete",success:window.location.replace("/")});
 });
 
 //This waits till the page has loaded

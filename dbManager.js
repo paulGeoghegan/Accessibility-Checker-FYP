@@ -9,6 +9,7 @@ const dbCon = pgp(`postgres://${process.env.pgUsername}:${process.env.pgPassword
 module.exports={
 	addReport:addReport,
 	addUser:addUser,
+	deleteReport:deleteReport,
 	deserializeUser:deserializeUser,
 	findUser:findUser,
 	getAllReports:getAllReports
@@ -32,6 +33,16 @@ function addUser(email, password) {
 	});
 
 	return dbCon.none(insertNewUser);
+}
+
+function deleteReport(id) {
+	const deleteUserReport= new PS({
+		name: "deleteReport",
+		text: "DELETE FROM reports WHERE id = $1;",
+		values: [id],
+	});
+
+	return dbCon.none(deleteUserReport);
 }
 
 function deserializeUser(id) {
