@@ -28,7 +28,7 @@ async function create(url) {
 	const $ = cheerio.load(response.data);
 	let imageList = $("img");
 	let buttonList = $("button");
-	let inputList = [$("input"),$("label")];
+	let inputList = [$("input, textarea"),$("label")];
 
 	//Calls async functions for report generation
 	[report["images"],report["buttons"],report["inputs"]] = await Promise.allSettled([generateAltText(imageList,url),generateButtonText(buttonList),generateInputSuggestions(inputList)]);
@@ -88,7 +88,7 @@ async function generateButtonText(buttonList) {
 	let buttons = {}
 	for(let button of buttonList) {
 		if((button.attribs["value"] == "" || !button.attribs["value"]) && (button.attribs["aria-label"] == "" || !button.attribs["aria-label"]) && (button.attribs["aria-labelledby"] == "" || !button.attribs["aria-labelledby"])) {
-			let suggestion = generateText(button.attribs);
+			let suggestion = generateText(button);
 			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
 		}
 	}
@@ -99,14 +99,18 @@ async function generateButtonText(buttonList) {
 async function generateInputSuggestions(inputList) {
 	let inputs = {};
 	for(let input of inputList[0]) {
+
 		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
-			let suggestion = generateText(input.attribs);
+			let suggestion = generateText(input);
 			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
 		}
-		if(input.attribs["type"] == "text" && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
-			if(!inputList[1].find(element => element.attribs["for"] == input.attribs["id"])["prevObject"].length > 0) {
-			let suggestion = generateText(input.attribs);
-			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
+		if((input.attribs["type"] == "text" || input["name"] == "textarea") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
+			if(!inputList[1].find(element => element.attribs["for"] === input.attribs["id"])["prevObject"].length > 0 || input.attribs["id"] == undefined) {
+				let suggestion = generateText(input);
+				inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
+			}
+			else {
+				console.log("Has a label",input.attribs);
 			}
 		}
 	}
@@ -117,17 +121,17 @@ async function generateInputSuggestions(inputList) {
 //This will take some text and try to use it to generate a suggested name for the element
 function generateText(element) {
 	let suggestion = {};
-	if(element["id"]) {
-		suggestion[element["id"]] = [element["type"],"ID: "+element["id"],element["id"]];
+	if(element.attribs["id"]) {
+		suggestion[element.attribs["id"]] = [element.attribs["type"]!=null ? element.attribs["type"]:element["name"],"ID: "+element.attribs["id"],element.attribs["id"]];
 	}
-	else if(element["name"]) {
-		suggestion[element["name"]] = [element["type"],"Name: "+element["name"],element["name"]];
+	else if(element.attribs["name"]) {
+		suggestion[element.attribs["name"]] = [element.attribs["type"]!=null ? element.attribs["type"]:element["name"],"Name: "+element.attribs["name"],element.attribs["name"]];
 	}
-	else if(element["title"]) {
-		suggestion[element["title"]] = [element["type"],"Title: "+element["title"],element["title"]];
+	else if(element.attribs["title"]) {
+		suggestion[element.attribs["title"]] = [element.attribs["type"]!=null ? element.attribs["type"]:element["name"],"Title: "+element.attribs["title"],element.attribs["title"]];
 	}
-	else if(element["class"]) {
-		suggestion[element["class"]] = [element["type"],"Class: "+element["class"],element["class"]];
+	else if(element.attribs["class"]) {
+		suggestion[element.attribs["class"]] = [element.attribs["type"]!=null ? element.attribs["type"]:element["name"],"Class: "+element.attribs["class"],element.attribs["class"]];
 	}
 	else {
 		console.log("Couldn't label:",element);

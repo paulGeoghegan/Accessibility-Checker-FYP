@@ -9,6 +9,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 const db = require("./dbManager.js")
 const generateReport = require("./generateReport.js");
+const { next } = require("cheerio/lib/api/traversing.js");
 
 
 //Sets up express server
@@ -162,7 +163,7 @@ app.get("/logIn", function(req,res) {
 
 //This route will handle logging the user in
 app.post("/logIn", passport.authenticate("local", {
-	successRedirect:"/",
+	successRedirect:next(),
 	failureRedirect:"/logIn"
 }) );
 
