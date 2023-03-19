@@ -30,8 +30,12 @@ table td{
 }
 
 .modalControls{
-	margin-top: 1%;
 	text-align: center;
+	background-color: navy;
+	color: lightgray;
+	padding: 1%;
+	width: 80%;
+	margin:0% auto;
 }
 
 .modalControls h2{

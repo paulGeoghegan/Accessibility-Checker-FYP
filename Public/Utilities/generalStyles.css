@@ -37,7 +37,7 @@ nav a{
 .modalContent{
 	background-color: navy;
 	color: lightgray;
-	margin: 15% auto;
+	margin: 15% auto 0% auto;
 	padding: 1%;
 	width: 25%;
 	overflow-y: auto;

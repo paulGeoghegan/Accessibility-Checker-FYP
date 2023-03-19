@@ -32,7 +32,7 @@ function addReport(data) {
 				<h3>Save This Report</h3>
 				<form id="saveDetails">
 					<label for="reportName">Report Name</label>
-					<input id="reportName" type="text" value="`+report["url"]+`"></br></br>
+					<input id="reportName" type="text" value="`+report["url"]+`" required></br></br>
 					<input type="button" value="Save" onclick="saveReport()">
 				</form>
 			</div>
@@ -105,6 +105,8 @@ async function saveReport() {
 	$.post("/saveReport",body).done(function() {
 		console.log("Report Saved");
 		alert("Your report was saved successfully");
+		hideModal("saveModal");
+		$("#saveReportBtn").prop("disabled",true);
 	}).fail(function(ex) {
 		console.error(ex);
 	});

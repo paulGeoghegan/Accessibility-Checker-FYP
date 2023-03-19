@@ -28,7 +28,7 @@ async function create(url) {
 	const $ = cheerio.load(response.data);
 	let imageList = $("img");
 	let buttonList = $("button");
-	let inputList = $("input");
+	let inputList = [$("input"),$("label")];
 
 	//Calls async functions for report generation
 	[report["images"],report["buttons"],report["inputs"]] = await Promise.allSettled([generateAltText(imageList,url),generateButtonText(buttonList),generateInputSuggestions(inputList)]);
@@ -88,39 +88,25 @@ async function generateButtonText(buttonList) {
 	let buttons = {}
 	for(let button of buttonList) {
 		if((button.attribs["value"] == "" || !button.attribs["value"]) && (button.attribs["aria-label"] == "" || !button.attribs["aria-label"]) && (button.attribs["aria-labelledby"] == "" || !button.attribs["aria-labelledby"])) {
-			if(button.attribs["id"] != "") {
-				buttons[button.attribs["id"]] = [button.attribs.type,"ID: "+button.attribs["id"],generateText(button.attribs["id"])];
-			}
-			else if(button.attribs["name"] != "") {
-				buttons[button.attribs["name"]] = [button.type,"Name: "+button.attribs["name"],generateText(button.attribs["name"])];
-			}
-			else if(button.attribs["class"]) {
-			buttons[button.attribs["class"]] = [button.type,"Class: "+button.attribs["class"],generateText(button.attribs["class"])];
-			}
-			else {
-				console.log("Couldn't label:",button.attribs);
-			}
+			let suggestion = generateText(button.attribs);
+			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
 		}
 	}
 	return buttons;
 }
 
 //This will loop through the input elements and generate suggestions for each one
-function generateInputSuggestions(inputList) {
+async function generateInputSuggestions(inputList) {
 	let inputs = {};
-	for(let input of inputList) {
+	for(let input of inputList[0]) {
 		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
-			if(input.attribs["id"] != "") {
-				inputs[input.attribs["id"]] = [input.attribs.type,"ID: "+input.attribs["id"],generateText(input.attribs["id"])];
-			}
-			else if(input.attribs["name"] != "") {
-				inputs[input.attribs["name"]] = [input.attribs.type,"Name: "+input.attribs["name"],generateText(input.attribs["name"])];
-			}
-			else if(button.attribs["class"]) {
-			inputs[input.attribs["class"]] = [input.attribs.type,"Class: "+input.attribs["class"],generateText(input.attribs["class"])];
-			}
-			else {
-				console.log("Couldn't label:",input.attribs);
+			let suggestion = generateText(input.attribs);
+			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
+		}
+		if(input.attribs["type"] == "text" && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
+			if(!inputList[1].find(element => element.attribs["for"] == input.attribs["id"])["prevObject"].length > 0) {
+			let suggestion = generateText(input.attribs);
+			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
 			}
 		}
 	}
@@ -129,8 +115,25 @@ function generateInputSuggestions(inputList) {
 }
 
 //This will take some text and try to use it to generate a suggested name for the element
-function generateText(text) {
-	console.log(text);
-	let newText = text.split(/(?=[A-Z])|-|_/);
-	return newText.join(" ");
+function generateText(element) {
+	let suggestion = {};
+	if(element["id"]) {
+		suggestion[element["id"]] = [element["type"],"ID: "+element["id"],element["id"]];
+	}
+	else if(element["name"]) {
+		suggestion[element["name"]] = [element["type"],"Name: "+element["name"],element["name"]];
+	}
+	else if(element["title"]) {
+		suggestion[element["title"]] = [element["type"],"Title: "+element["title"],element["title"]];
+	}
+	else if(element["class"]) {
+		suggestion[element["class"]] = [element["type"],"Class: "+element["class"],element["class"]];
+	}
+	else {
+		console.log("Couldn't label:",element);
+		return;
+	}
+	console.log(suggestion[Object.keys(suggestion)[0]]);
+	suggestion[Object.keys(suggestion)[0]][2] = suggestion[Object.keys(suggestion)[0]][2].split(/(?=[A-Z])|-|_/).join(" ");
+	return suggestion;
 }

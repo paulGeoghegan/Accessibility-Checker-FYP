@@ -14,7 +14,8 @@ function getReports() {
 		table.append("<thead><tr><th>Name</th><th>Page Link</h><th>Created</th><th>Action</th></tr></thead>");
 
 		for(let report of reportList) {
-			tableBody.append(`<tr id="`+report.id+`"><td class="name"><a tabindex="0" onclick="openReport(`+report.id+`)">`+report.name+`</a></td><td><a href="`+report.report["url"]+`">`+report.report["url"]+`</a></td><td class="time">`+report.created+`</td><td><input type="button" value="Delete" onclick="confirmDeleteReport(`+report.id+`)"></td></tr>`);
+			console.log(report);
+			tableBody.append(`<tr id="`+report.id+`"><td class="name"><a tabindex="0" onclick="openReport(`+report.id+`)">`+report.name+`</a></td><td><a href="`+report.report["url"]+`">`+report.report["url"]+`</a></td><td class="time">`+new Date(report.created)+`</td><td><input type="button" value="Delete" onclick="confirmDeleteReport(`+report.id+`)"></td></tr>`);
 		}
 
 		table.append(tableBody);
@@ -30,7 +31,7 @@ function openReport(id) {
 	$("#reportInfo").append(`
 		<h2>`+report.name+`</h2>
 		<a href="`+report.report["url"]+`">`+report.report["url"]+`</a>
-		<p>Created: `+report.created+`</p>
+		<p>Created: `+new Date(report.created)+`</p>
 	`);
 	tableView(report.report,"buttons");
 	tableView(report.report,"images");
@@ -75,15 +76,13 @@ function deleteReport(id) {
 function tableView(report,sectionType) {
 	//Sets up variables
 	let div = $("#"+sectionType+"Div")
+	div.empty()
 	if(jQuery.isEmptyObject(report[sectionType].value)) {
 		div.append("<p>No suggestions. Good job!</p>");
 		return;
 	}
 	let table = $("<table>");
 	let tableBody = $("<tbody>");
-
-	//Clears div
-	div.empty();
 
 	//Sets up headings
 	if(sectionType == "buttons") {

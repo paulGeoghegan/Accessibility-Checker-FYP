@@ -27,8 +27,6 @@ app.use(passport.session());
 
 //Uses pasport to authenticate user
 passport.use(new LocalStrategy({usernameField:'email', passwordField:'password'}, function(email, password,done) {
-	console.log("Logging in ",email);
-	//This sends the query to the db
 	db.findUser(email).then(function(row) {
 		if(!row) {
 			return done(null,false,"Sorry that user doesn't exist");
@@ -52,7 +50,6 @@ passport.use(new LocalStrategy({usernameField:'email', passwordField:'password'}
 }));
 
 passport.serializeUser(function(user,done) {
-	console.log(user,done);
 	done(null,user);
 });
 
@@ -77,10 +74,7 @@ app.get("/", function(req, res) {
 
 //This handles the post request for when the user enters a URL
 app.post("/", function(req, res) {
-	console.log("Getting Website URL");
-	//This stores the URL of the website for the report the user wants generated
 	req.session.websiteURL = req.body.userURL;
-	console.log(req.session.websiteURL)
 	//Redirects to the Report page
 	res.redirect("/report");
 });
@@ -106,7 +100,7 @@ app.post("/createAccount", function(req, res) {
 	bcrypt.hash(password,10,function(ex,hashedPassword) {
 		//Logs error if there is any
 		if(ex != null) {
-			console.log(ex);
+			console.error(ex);
 		}
 
 		//Adds new user to the database
@@ -139,7 +133,6 @@ app.get("/getReports",async function(req,res) {
 
 //This gets the users email to be displayed on the account page
 app.get("/getUserEmail", function(req,res) {
-	console.log(req.user.email);
 	res.send(req.user.email);
 });
 
@@ -173,15 +166,10 @@ app.post("/logIn", passport.authenticate("local", {
 	failureRedirect:"/logIn"
 }) );
 
-//This will handle logging the user out
 app.delete("/logOut", function(req,res) {
-	console.log("Logging user out");
 	req.logOut(function(ex) {
 		if(ex) {
-			console.log(ex);
-		}
-		else {
-			console.log("Redirecting");
+			console.error(ex);
 		}
 	});
 });
@@ -191,15 +179,12 @@ app.get("/myReports", loggedIn, function(req, res) {
 	res.sendFile(__dirname+"/Public/MyReports/myReports.html");
 });
 
-//This serves the user the report page
 app.get("/report", function(req, res) {
-	console.log("User Redirected");
 	res.sendFile(__dirname + "/Public/Report/report.html");
 });
 
 //This root will generate and send the website report
 app.get("/createReport", async function(req, res) {
-	console.log(req.session.websiteURL);
 
 	//This will generate the report for the user
 	let report = await generateReport.create(req.session.websiteURL);
@@ -209,9 +194,7 @@ app.get("/createReport", async function(req, res) {
 });
 
 app.post("/saveReport",function(req,res) {
-	console.log("Saving report:",req.body.reportName);
 		db.addReport(req.user.id,req.body.reportName,JSON.stringify(req.body.report)).then(function() {
-			console.log("New report added");
 			res.status(204).send("report added");
 		}).catch(function(ex) {
 			console.error(ex);
