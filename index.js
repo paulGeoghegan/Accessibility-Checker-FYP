@@ -9,7 +9,6 @@ const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 const db = require("./dbManager.js")
 const generateReport = require("./generateReport.js");
-const { next } = require("cheerio/lib/api/traversing.js");
 
 
 //Sets up express server
@@ -140,12 +139,10 @@ app.get("/getUserEmail", function(req,res) {
 //This checks if the user is logged in or not
 app.get("/isLoggedIn", function(req, res) {
 	if(req.isAuthenticated()) {
-		let link = '<a class="accountLinks" href="/account">Account</a>'
-		res.status(200).send(link);
+		res.status(200).send(true);
 	}
 	else {
-		let link = '<a class="accountLinks" href="/createAccount">Create Account</a><a class="accountLinks" href="/logIn">Log In</a>'
-		res.status(200).send(link);
+		res.status(200).send(false);
 	}
 });
 
@@ -162,10 +159,14 @@ app.get("/logIn", function(req,res) {
 });
 
 //This route will handle logging the user in
-app.post("/logIn", passport.authenticate("local", {
-	successRedirect:next(),
-	failureRedirect:"/logIn"
-}) );
+app.post("/logIn", passport.authenticate("local",
+	{
+		successReturnToOrRedirect:"/",
+		failureRedirect:"/logIn",
+		failureFlash:true,
+		keepSessionInfo:true
+	}
+));
 
 app.delete("/logOut", function(req,res) {
 	req.logOut(function(ex) {
@@ -209,6 +210,7 @@ function loggedIn(req,res,next) {
 		return next();
 	}
 	else {
+		req.session.returnTo=req.route.path;
 		res.redirect("/logIn");
 	}
 }

@@ -25,7 +25,7 @@ function addReport(data) {
 	$("#middleOfPage").append(`
 		<h3> Your Report </h3>
 		<p> Report generated for: <a href="`+report["url"]+`">`+report["url"]+`</a></p>
-		<input id="saveReportBtn" type="button" value="Save" onclick="displayModal('saveModal')">
+		<input id="saveReportBtn" type="button" disabled value="Save (Please login)" onclick="displayModal('saveModal')">
 		<div id="saveModal" class="modal">
 			<div id="saveModalContent" class="modalContent">
 				<span id="saveModalClose" class="close" tabindex="0">&times;</span>
@@ -56,6 +56,11 @@ function addReport(data) {
 	tableView("buttons");
 	tableView("images");
 	tableView("inputs");
+	$.get("/isLoggedIn").done(function(authenticated) {
+		if(authenticated) {
+			$("#saveReportBtn").prop("disabled",false).val("Save");
+		}
+	})
 }
 
 //This function will create the table view for the report
