@@ -11,7 +11,6 @@ const db = require("./dbManager.js")
 const generateReport = require("./generateReport.js");
 
 
-//Sets up express server
 const app = express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(__dirname + "/Public"));
@@ -25,17 +24,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-//Uses pasport to authenticate user
 passport.use(new LocalStrategy({usernameField:'email', passwordField:'password'}, function(email, password,done) {
 	db.findUser(email).then(function(row) {
 		if(!row) {
 			return done(null,false,"Sorry that user doesn't exist");
 		}
 		else {
-			//This compairs the passwords
 			bcrypt.compare(password,row.password,function(ex,result) {
 				if(result) {
-					//Sets up user
 					done(null,row.id);
 				}
 				else {
@@ -53,7 +49,6 @@ passport.serializeUser(function(user,done) {
 	done(null,user);
 });
 
-//This will find an deserialize the user
 passport.deserializeUser(function(user,done) {
 	db.deserializeUser(user).then(function(row) {
 		done(null,{"id":row.id,"email":row.email});
@@ -67,43 +62,33 @@ app.listen(3000, function() {
 });
 
 
-//This serves the user the Home page
 app.get("/", function(req, res) {
 	res.sendFile(__dirname + "/Public/Home/home.html");
 });
 
-//This handles the post request for when the user enters a URL
 app.post("/", function(req, res) {
 	req.session.websiteURL = req.body.userURL;
-	//Redirects to the Report page
 	res.redirect("/report");
 });
 
-//This serves the account page
 app.get("/account", loggedIn, function(req,res) {
 	res.sendFile(__dirname+"/Public/Account/account.html");
 });
 
-//This serves the user the Create Account page
 app.get("/createAccount", function(req, res) {
 	res.sendFile(__dirname + "/Public/Create Account/createAccount.html");
 });
 
-//This creates the users account or lets them know if it doesn't exist
 app.post("/createAccount", function(req, res) {
 
-	//Gets email and password
 	const email = req.body.email;
 	const password = req.body.password;
 
-	//This will hash the users password
 	bcrypt.hash(password,10,function(ex,hashedPassword) {
-		//Logs error if there is any
 		if(ex != null) {
 			console.error(ex);
 		}
 
-		//Adds new user to the database
 		db.addUser(email,hashedPassword).then(function() {
 			console.log("New user added");
 			res.status(204).send("user added");
@@ -131,12 +116,10 @@ app.get("/getReports",async function(req,res) {
 	});
 });
 
-//This gets the users email to be displayed on the account page
 app.get("/getUserEmail", function(req,res) {
 	res.send(req.user.email);
 });
 
-//This checks if the user is logged in or not
 app.get("/isLoggedIn", function(req, res) {
 	if(req.isAuthenticated()) {
 		res.status(200).send(true);
@@ -158,7 +141,6 @@ app.get("/logIn", function(req,res) {
 	res.sendFile(__dirname + "/Public/Log In/login.html");
 });
 
-//This route will handle logging the user in
 app.post("/logIn", passport.authenticate("local",
 	{
 		successReturnToOrRedirect:"/",
@@ -176,7 +158,6 @@ app.delete("/logOut", function(req,res) {
 	});
 });
 
-//This serves the user the My Reports page
 app.get("/myReports", loggedIn, function(req, res) {
 	res.sendFile(__dirname+"/Public/MyReports/myReports.html");
 });
@@ -185,10 +166,8 @@ app.get("/report", function(req, res) {
 	res.sendFile(__dirname + "/Public/Report/report.html");
 });
 
-//This root will generate and send the website report
 app.get("/createReport", async function(req, res) {
 
-	//This will generate the report for the user
 	let report = await generateReport.create(req.session.websiteURL);
 
 	res.status(200).send(report);
@@ -204,7 +183,6 @@ app.post("/saveReport",function(req,res) {
 		});
 });
 
-//This function checks if the user is logged in
 function loggedIn(req,res,next) {
 	if(req.isAuthenticated()) {
 		return next();
