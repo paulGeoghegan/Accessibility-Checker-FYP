@@ -7,6 +7,8 @@ const { response } = require("express");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
+const https = require("https");
+const fs = require("fs");
 const db = require("./dbManager.js")
 const generateReport = require("./generateReport.js");
 
@@ -57,7 +59,12 @@ passport.deserializeUser(function(user,done) {
 	})
 });
 
-app.listen(3000, function() {
+const certs = {
+	key:fs.readFileSync(process.env.httpsKey),
+	cert:fs.readFileSync(process.env.httpsCert)
+};
+
+https.createServer(certs,app).listen(3000, function() {
 	console.log('Server running on port 3000');
 });
 
