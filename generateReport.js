@@ -4,20 +4,16 @@ const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
 const cheerio = require("cheerio");
 const axios = require("axios");
 
-//Gets key and endpoint from .env file for computer vision
 const microsoft_computer_vision_key = process.env.mskey;
 const microsoft_computer_vision_endpoint = process.env.msendpoint;
 
-//Creates client
 const computerVisionClient = new ComputerVisionClient(new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': microsoft_computer_vision_key } }), microsoft_computer_vision_endpoint);
 
-//Sets up functions that will be exported
 module.exports={
 	create:create
 }
 
 
-//This will be the main function that handles generating the report for the user
 async function create(url) {
 
 	//Defines report object
