@@ -16,36 +16,28 @@ module.exports={
 
 async function create(url) {
 
-	//Defines report object
 	let report = {images:{},buttons:{},inputs:{},"url":url};
-	//This retrieves the html from the given URL
 	const response = await axios.get(url);
-	//This sets up the dom using cheerio
 	const $ = cheerio.load(response.data);
 	let imageList = $("img");
 	let buttonList = $("button");
 	let inputList = [$("input, textarea"),$("label")];
 
-	//Calls async functions for report generation
 	[report["images"],report["buttons"],report["inputs"]] = await Promise.allSettled([generateAltText(imageList,url),generateButtonText(buttonList),generateInputSuggestions(inputList)]);
 
 	return report;
 
 }
 
-//This function handles sending the request to azure computer vision
 async function generateAltText(imageList,url) {
 
-	//This stores the features the user wants returned
 	let features = ['ImageType', 'Faces', 'Adult', 'Categories', 'Color', 'Tags', 'Description', 'Objects', 'Brands'];
 	let images = {};
 	let altText;
 	let imgSrc;
 
-//Loops through the list of images
 	for(let img of imageList) {
 		if((!img.attribs["alt"]||img.attribs["alt"]==""||img.attribs["alt"]==" ")) {
-			//This will check where the images src is located in the html
 			if(!img.attribs["data-lazyload"] && !img.attribs["data-lazy-src"]) {
 				imgSrc = img.attribs["src"];
 			}
@@ -55,7 +47,6 @@ async function generateAltText(imageList,url) {
 				imgSrc = img.attribs["data-lazyload"];
 			}
 			console.log("Checking URL",url);
-			//This makes sure the url is valid
 			if(imgSrc.startsWith("//")) {
 				imgSrc = url.split("//")[0]+imgSrc;
 			}
@@ -71,7 +62,6 @@ async function generateAltText(imageList,url) {
 			altText = await computerVisionClient.analyzeImage(imgSrc,{visualFeatures: features});
 			altText = altText.description["captions"][0].text;
 
-			//Assigns to object
 			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText];
 		}
 	}
@@ -79,7 +69,6 @@ async function generateAltText(imageList,url) {
 	return images;
 }
 
-//This function will use the button id to generate suggested text for the button
 async function generateButtonText(buttonList) {
 	let buttons = {}
 	for(let button of buttonList) {
@@ -91,7 +80,6 @@ async function generateButtonText(buttonList) {
 	return buttons;
 }
 
-//This will loop through the input elements and generate suggestions for each one
 async function generateInputSuggestions(inputList) {
 	let inputs = {};
 	for(let input of inputList[0]) {
@@ -114,7 +102,6 @@ async function generateInputSuggestions(inputList) {
 	return inputs;
 }
 
-//This will take some text and try to use it to generate a suggested name for the element
 function generateText(element) {
 	let suggestion = {};
 	if(element.attribs["id"]) {
