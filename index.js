@@ -7,8 +7,6 @@ const { response } = require("express");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
-const https = require("https");
-const fs = require("fs");
 const db = require("./dbManager.js")
 const generateReport = require("./generateReport.js");
 
@@ -59,13 +57,24 @@ passport.deserializeUser(function(user,done) {
 	})
 });
 
-const certs = {
-	key:fs.readFileSync(process.env.httpsKey),
-	cert:fs.readFileSync(process.env.httpsCert)
-};
+let port = normalizePort(process.env.PORT || '3000');
 
-https.createServer(certs,app).listen(3000, function() {
-	console.log('Server running on port 3000');
+function normalizePort(val) {
+	let port = parseInt(val, 10);
+
+	if(isNaN(port)) {
+		return val;
+	}
+
+	if (port >= 0) {
+		return port;
+	}
+
+	return false;
+}
+
+app.listen(port, function() {
+	console.log('Server running on port ',port);
 });
 
 
