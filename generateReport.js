@@ -13,7 +13,6 @@ module.exports={
 	create:create
 }
 
-
 async function create(url) {
 
 	let report = {images:{},buttons:{},inputs:{},"url":url};

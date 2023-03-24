@@ -58,7 +58,7 @@ function addReport(data) {
 	tableView("inputs");
 	$.get("/isLoggedIn").done(function(authenticated) {
 		if(authenticated) {
-			$("#saveReportBtn").prop("disabled",false).val("Save");
+			$("#saveReportBtn").prop("disabled",	false).val("Save");
 		}
 	})
 }
