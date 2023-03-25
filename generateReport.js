@@ -108,12 +108,13 @@ async function generateInputSuggestions(inputList) {
 		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
 			let suggestion = generateText(input);
 			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
+			inputs[Object.keys(suggestion)[0]][2] = `aria-label="`+inputs[Object.keys(suggestion)[0]][2]+`"`;
 		}
 		if((input.attribs["type"] == "text" || input["name"] == "textarea") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
 			if(!inputList[1].find(element => element.attribs["for"] === input.attribs["id"])["prevObject"].length > 0 || input.attribs["id"] == undefined) {
 				let suggestion = generateText(input);
 				inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
-				inputs[Object.keys(suggestion)[0]][2]+="test";
+				inputs[Object.keys(suggestion)[0]][2]=`&lt;label for="`+Object.keys(suggestion)[0]+`"&gt;`+inputs[Object.keys(suggestion)[0]][2]+`&lt;/label&gt;`;
 			}
 		}
 	}
