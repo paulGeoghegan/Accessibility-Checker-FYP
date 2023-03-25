@@ -3,6 +3,7 @@ const ComputerVisionClient = require('@azure/cognitiveservices-computervision').
 const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
 const cheerio = require("cheerio");
 const axios = require("axios");
+const sleep=require('util').promisify(setTimeout);
 
 const microsoft_computer_vision_key = process.env.mskey;
 const microsoft_computer_vision_endpoint = process.env.msendpoint;
@@ -30,7 +31,7 @@ async function create(url) {
 
 async function generateAltText(imageList,url) {
 
-	let features = ['ImageType', 'Faces', 'Adult', 'Categories', 'Color', 'Tags', 'Description', 'Objects', 'Brands'];
+	let features = ['Description','OCR'];
 	let images = {};
 	let altText;
 	let imgSrc;
@@ -45,7 +46,6 @@ async function generateAltText(imageList,url) {
 			} else {
 				imgSrc = img.attribs["data-lazyload"];
 			}
-			console.log("Checking URL",url);
 			if(imgSrc.startsWith("//")) {
 				imgSrc = url.split("//")[0]+imgSrc;
 			}
@@ -53,13 +53,35 @@ async function generateAltText(imageList,url) {
 				imgSrc = url.split("/")[2]+imgSrc;
 			}
 			else if(!imgSrc.includes("://")) {
-				console.log("Test");
 				imgSrc = url+"/"+imgSrc;
 			}
 
-			console.log("Image URL:",imgSrc);
-			altText = await computerVisionClient.analyzeImage(imgSrc,{visualFeatures: features});
-			altText = altText.description["captions"][0].text;
+			altText = await computerVisionClient.describeImage(imgSrc);
+
+			if(altText["tags"].includes("text")) {
+				let ocrText="";
+				let locationResponse = await computerVisionClient.read(imgSrc).then(function(response) {return response.operationLocation});
+				let responseId = locationResponse.substring(locationResponse.lastIndexOf("/")+1);
+				while(true) {
+					let text = await computerVisionClient.getReadResult(responseId).then(function(response) {return response});
+					if(text.status=="succeeded") {
+						for(let page of text.analyzeResult.readResults) {
+							for(let line of page.lines) {
+								ocrText+=line.text+" ";
+							}
+						}
+						break;
+					}
+					else if(text.status=="failed") {
+						break;
+					}
+					await sleep(500);
+				}
+				altText = altText.captions[0].text+" that says:"+ocrText;
+			}
+			else {
+				altText = altText.captions[0].text;
+			}
 
 			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText];
 		}
@@ -73,7 +95,7 @@ async function generateButtonText(buttonList) {
 	for(let button of buttonList) {
 		if((button.attribs["value"] == "" || !button.attribs["value"]) && (button.attribs["aria-label"] == "" || !button.attribs["aria-label"]) && (button.attribs["aria-labelledby"] == "" || !button.attribs["aria-labelledby"])) {
 			let suggestion = generateText(button);
-			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
+			buttons[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
 		}
 	}
 	return buttons;
@@ -91,13 +113,10 @@ async function generateInputSuggestions(inputList) {
 			if(!inputList[1].find(element => element.attribs["for"] === input.attribs["id"])["prevObject"].length > 0 || input.attribs["id"] == undefined) {
 				let suggestion = generateText(input);
 				inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
-			}
-			else {
-				console.log("Has a label",input.attribs);
+				inputs[Object.keys(suggestion)[0]][2]+="test";
 			}
 		}
 	}
-	console.log(inputs);
 	return inputs;
 }
 
