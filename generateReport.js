@@ -96,6 +96,7 @@ async function generateButtonText(buttonList) {
 		if((button.attribs["value"] == "" || !button.attribs["value"]) && (button.attribs["aria-label"] == "" || !button.attribs["aria-label"]) && (button.attribs["aria-labelledby"] == "" || !button.attribs["aria-labelledby"])) {
 			let suggestion = generateText(button);
 			buttons[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
+			buttons[Object.keys(suggestion)[0]][2] = `aria-label="`+suggestion[Object.keys(suggestion)[0]][2]+`"`;
 		}
 	}
 	return buttons;
@@ -105,12 +106,12 @@ async function generateInputSuggestions(inputList) {
 	let inputs = {};
 	for(let input of inputList[0]) {
 
-		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
+		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "" || input.attribs["type"] == "radio") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
 			let suggestion = generateText(input);
 			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
 			inputs[Object.keys(suggestion)[0]][2] = `aria-label="`+inputs[Object.keys(suggestion)[0]][2]+`"`;
 		}
-		if((input.attribs["type"] == "text" || input["name"] == "textarea") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
+		if((input.attribs["type"] == "text" || input["name"] == "textarea" || input.attribs["type"] == "checkbox" || input.attribs["type"] == "radio") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
 			if(!inputList[1].find(element => element.attribs["for"] === input.attribs["id"])["prevObject"].length > 0 || input.attribs["id"] == undefined) {
 				let suggestion = generateText(input);
 				inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
@@ -137,9 +138,11 @@ function generateText(element) {
 	}
 	else {
 		console.log("Couldn't label:",element);
-		return;
+		suggestion[element.attribs["type"]!=null ? element.attribs["type"]:element["name"]] = [element.attribs["type"]!=null ? element.attribs["type"]:element["name"],"No identifier found!","This means that there is at least one element of this type on your page that has no identifires that this website could find. Please add an id, name, class or title to every element if you want suggestions for them."];
+		return suggestion;
 	}
 	console.log(suggestion[Object.keys(suggestion)[0]]);
 	suggestion[Object.keys(suggestion)[0]][2] = suggestion[Object.keys(suggestion)[0]][2].split(/(?=[A-Z])|-|_/).join(" ");
+	suggestion[Object.keys(suggestion)[0]][2] = (suggestion[Object.keys(suggestion)[0]][2].charAt(0).toUpperCase()+	suggestion[Object.keys(suggestion)[0]][2].slice(1)).replace(/\s+/g," ").trim();
 	return suggestion;
 }
