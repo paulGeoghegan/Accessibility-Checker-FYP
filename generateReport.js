@@ -105,7 +105,6 @@ async function generateButtonText(buttonList) {
 async function generateInputSuggestions(inputList) {
 	let inputs = {};
 	for(let input of inputList[0]) {
-
 		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "" || input.attribs["type"] == "radio") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
 			let suggestion = generateText(input);
 			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
@@ -143,6 +142,6 @@ function generateText(element) {
 	}
 	console.log(suggestion[Object.keys(suggestion)[0]]);
 	suggestion[Object.keys(suggestion)[0]][2] = suggestion[Object.keys(suggestion)[0]][2].split(/(?=[A-Z])|-|_/).join(" ");
-	suggestion[Object.keys(suggestion)[0]][2] = (suggestion[Object.keys(suggestion)[0]][2].charAt(0).toUpperCase()+	suggestion[Object.keys(suggestion)[0]][2].slice(1)).replace(/\s+/g," ").trim();
+	suggestion[Object.keys(suggestion)[0]][2] = (suggestion[Object.keys(suggestion)[0]][2].charAt(0).toUpperCase()+suggestion[Object.keys(suggestion)[0]][2].slice(1)).replace(/\s+/g," ").trim();
 	return suggestion;
 }
