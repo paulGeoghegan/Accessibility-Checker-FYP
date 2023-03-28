@@ -50,12 +50,11 @@ async function generateAltText(imageList,url) {
 				imgSrc = url.split("//")[0]+imgSrc;
 			}
 			else if(imgSrc.startsWith("/")) {
-				imgSrc = url.split("/")[2]+imgSrc;
+				imgSrc = url.split("/",3).join("/")+imgSrc;
 			}
 			else if(!imgSrc.includes("://")) {
 				imgSrc = url+"/"+imgSrc;
 			}
-
 			altText = await computerVisionClient.describeImage(imgSrc);
 
 			if(altText["tags"].includes("text")) {
@@ -140,7 +139,6 @@ function generateText(element) {
 		suggestion[element.attribs["type"]!=null ? element.attribs["type"]:element["name"]] = [element.attribs["type"]!=null ? element.attribs["type"]:element["name"],"No identifier found!","This means that there is at least one element of this type on your page that has no identifires that this website could find. Please add an id, name, class or title to every element if you want suggestions for them."];
 		return suggestion;
 	}
-	console.log(suggestion[Object.keys(suggestion)[0]]);
 	suggestion[Object.keys(suggestion)[0]][2] = suggestion[Object.keys(suggestion)[0]][2].split(/(?=[A-Z])|-|_/).join(" ");
 	suggestion[Object.keys(suggestion)[0]][2] = (suggestion[Object.keys(suggestion)[0]][2].charAt(0).toUpperCase()+suggestion[Object.keys(suggestion)[0]][2].slice(1)).replace(/\s+/g," ").trim();
 	return suggestion;
