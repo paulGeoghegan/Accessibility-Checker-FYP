@@ -16,14 +16,15 @@ module.exports={
 
 async function create(url) {
 
-	let report = {images:{},buttons:{},inputs:{},"url":url};
+	let report = {images:{},buttons:{},inputs:{},links:{},"url":url};
 	const response = await axios.get(url);
 	const $ = cheerio.load(response.data);
 	let imageList = $("img");
 	let buttonList = $("button");
 	let inputList = [$("input, textarea"),$("label")];
+	let linkList = $("a");
 
-	[report["images"],report["buttons"],report["inputs"]] = await Promise.allSettled([generateAltText(imageList,url),generateButtonText(buttonList),generateInputSuggestions(inputList)]);
+	[report["images"],report["buttons"],report["inputs"],report["links"]] = await Promise.allSettled([generateAltText(imageList,url),generateButtonText(buttonList),generateInputSuggestions(inputList),generateLinkSuggestions(linkList)]);
 
 	return report;
 
@@ -31,7 +32,6 @@ async function create(url) {
 
 async function generateAltText(imageList,url) {
 
-	let features = ['Description','OCR'];
 	let images = {};
 	let altText;
 	let imgSrc;
@@ -66,7 +66,7 @@ async function generateAltText(imageList,url) {
 					if(text.status=="succeeded") {
 						for(let page of text.analyzeResult.readResults) {
 							for(let line of page.lines) {
-								ocrText+=line.text+" ";
+								ocrText+=line.text.replaceAll("\"","&quot;")+"&#13;&#10;";
 							}
 						}
 						break;
@@ -76,13 +76,13 @@ async function generateAltText(imageList,url) {
 					}
 					await sleep(500);
 				}
-				altText = altText.captions[0].text+" that says:"+ocrText;
+				altText = `<pre>alt="`+altText.captions[0].text+" that says:"+ocrText+`"</pre>`;
 			}
 			else {
-				altText = altText.captions[0].text;
+				altText = `<pre>alt="`+altText.captions[0].text+`"</pre>`;
 			}
 
-			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText];
+			images[imgSrc] = [`<img src="`+imgSrc+`" alt="`+altText.split("\"",2)[1]+`" width="100%" height="100%">`,`<a href="`+imgSrc+`">`+imgSrc+`</a>`,altText];
 		}
 	}
 
@@ -118,6 +118,21 @@ async function generateInputSuggestions(inputList) {
 		}
 	}
 	return inputs;
+}
+
+async function generateLinkSuggestions(linkList) {
+	let links={}
+
+	for(let link of linkList) {
+		if(link.children.length < 1 && (link.attribs["aria-label"] == "" || !link.attribs["aria-label"]) && (link.attribs["aria-labelledby"] == "" || !link.attribs["aria-labelledby"])) {
+			let suggestion = generateText(link);
+			links[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
+			links[Object.keys(suggestion)[0]][2] = `aria-label="`+suggestion[Object.keys(suggestion)[0]][2]+`"`;
+			links[Object.keys(suggestion)[0]][0] = `<a href="`+link.attribs["href"]+`">`+link.attribs["href"]+`</a>`;
+		}
+	}
+	console.log("links:",links);
+	return links;
 }
 
 function generateText(element) {

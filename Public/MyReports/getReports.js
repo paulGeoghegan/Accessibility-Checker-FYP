@@ -1,5 +1,7 @@
 
 let reportList;
+let report;
+
 getReports()
 
 function getReports() {
@@ -13,9 +15,8 @@ function getReports() {
 
 		table.append("<thead><tr><th>Name</th><th>Page Link</h><th>Created</th><th>Action</th></tr></thead>");
 
-		for(let report of reportList) {
-			console.log(report);
-			tableBody.append(`<tr id="`+report.id+`"><td class="name"><a tabindex="0" onclick="openReport(`+report.id+`)">`+report.name+`</a></td><td><a href="`+report.report["url"]+`">`+report.report["url"]+`</a></td><td class="time">`+new Date(report.created)+`</td><td><input type="button" value="Delete" onclick="confirmDeleteReport(`+report.id+`)"></td></tr>`);
+		for(let rep of reportList) {
+			tableBody.append(`<tr id="`+rep.id+`"><td class="name"><a tabindex="0" onclick="openReport(`+rep.id+`)">`+rep.name+`</a></td><td><a href="`+rep.report["url"]+`">`+rep.report["url"]+`</a></td><td class="time">`+new Date(rep.created)+`</td><td><input type="button" value="Delete" onclick="confirmDeleteReport(`+rep.id+`)"></td></tr>`);
 		}
 
 		table.append(tableBody);
@@ -26,20 +27,21 @@ function getReports() {
 }
 
 function openReport(id) {
-	let report = reportList.find(element => element.id === id);
+	let reportDetails = reportList.find(element => element.id === id);
+	report = reportDetails.report;
 	$("#reportInfo").empty();
 	$("#reportInfo").append(`
-		<h2>`+report.name+`</h2>
-		<a href="`+report.report["url"]+`">`+report.report["url"]+`</a>
-		<p>Created: `+new Date(report.created)+`</p>
+		<h2>`+reportDetails.name+`</h2>
+		<a href="`+report["url"]+`">`+report["url"]+`</a>
+		<p>Created: `+new Date(reportDetails.created)+`</p>
 	`);
-	tableView(report.report,"buttons");
-	tableView(report.report,"images");
-	tableView(report.report,"inputs");
+	tableView("buttons");
+	tableView("images");
+	tableView("inputs");
 	$("#reportModal .modalControls").empty();
 	$("#reportModal .modalControls").append(`
 		<h2> Controls </h2>
-		<input type="button" value="Delete" onclick="confirmDeleteReport(`+report.id+`,true)">
+		<input type="button" value="Delete" onclick="confirmDeleteReport(`+reportDetails.id+`,true)">
 	`);
 	addModalListeners("reportModal")
 	displayModal("reportModal");
@@ -71,40 +73,3 @@ function deleteReport(id) {
 		getReports();
 	}});
 }
-
-//This function will create the table view for the report
-function tableView(report,sectionType) {
-	//Sets up variables
-	let div = $("#"+sectionType+"Div")
-	div.empty()
-	if(jQuery.isEmptyObject(report[sectionType].value)) {
-		div.append("<p>No suggestions. Good job!</p>");
-		return;
-	}
-	let table = $("<table>");
-	let tableBody = $("<tbody>");
-
-	//Sets up headings
-	if(sectionType == "buttons") {
-	table.append("<thead><tr><th>Type</th><th>Identifier</th><th>Suggested aria-label</th></tr></thead>");
-	}
-	else if(sectionType == "images") {
-	table.append("<thead><tr><th>Image</th><th>Source</th><th>Alt Text</th></tr></thead>");
-	}
-	else if(sectionType == "inputs") {
-		table.append("<thead><tr><th>Type</th><th>Identifier</th><th>Suggested Changes</th></tr></thead>");
-	}
-
-	//Loops through report and adds rows to table
-	for(let key in report[sectionType].value) {
-	tableBody.append(`<tr><td class="imgtd">`+report[sectionType].value[key][0]+`</td><td>`+report[sectionType].value[key][1]+`</td><td>`+report[sectionType].value[key][2]+`</td></tr>`);
-	}
-
-	//Appends tableBody
-	table.append(tableBody);
-
-	//Appends table
-	div.append(table);
-
-}
-
