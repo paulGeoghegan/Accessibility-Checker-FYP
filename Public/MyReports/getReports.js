@@ -38,6 +38,7 @@ function openReport(id) {
 	tableView("buttons");
 	tableView("images");
 	tableView("inputs");
+	tableView("links");
 	$("#reportModal .modalControls").empty();
 	$("#reportModal .modalControls").append(`
 		<h2> Controls </h2>

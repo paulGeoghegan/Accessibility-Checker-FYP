@@ -65,3 +65,11 @@ img{
 .time{
 	width: 15%;
 }
+
+.noIssues{
+	color: green;
+}
+
+.issuesFound{
+	color: red;
+}

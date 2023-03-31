@@ -37,22 +37,7 @@ function addReport(data) {
 				</form>
 			</div>
 		</div>
-		<details>
-			<summary><h3>Buttons</h3></summary>
-			<div id="buttonsDiv"></div>
-		</details>
-		<details>
-			<summary><h3>Images</h3></summary>
-			<div id="imagesDiv"></div>
-		</details>
-		<details>
-			<summary><h3>Inputs</h3></summary>
-			<div id="inputsDiv"></div>
-		</details>
-		<details>
-			<summary><h3>Links</h3></summary>
-			<div id="linksDiv"></div>
-		</details>
+		<div id="reportInfo"></div>
 	`);
 
 	addModalListeners("saveModal");
