@@ -161,8 +161,7 @@ app.post("/logIn", passport.authenticate("local",
 	{
 		successReturnToOrRedirect:"/",
 		failureRedirect:"/logIn",
-		failureFlash:true,
-		keepSessionInfo:true
+		failureFlash:true
 	}
 ));
 

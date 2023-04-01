@@ -53,7 +53,7 @@ async function generateAltText(imageList,url) {
 				imgSrc = url.split("/",3).join("/")+imgSrc;
 			}
 			else if(!imgSrc.includes("://")) {
-				imgSrc = url+"/"+imgSrc;
+				imgSrc = url.split("/",3).join("/")+"/"+imgSrc;
 			}
 			altText = await computerVisionClient.describeImage(imgSrc);
 
@@ -104,12 +104,12 @@ async function generateButtonText(buttonList) {
 async function generateInputSuggestions(inputList) {
 	let inputs = {};
 	for(let input of inputList[0]) {
-		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "" || input.attribs["type"] == "radio") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
+		if(input.attribs["type"] == "button" && (!input.attribs["value"] || input.attribs["value"] == "") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
 			let suggestion = generateText(input);
 			inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
 			inputs[Object.keys(suggestion)[0]][2] = `aria-label="`+inputs[Object.keys(suggestion)[0]][2]+`"`;
 		}
-		if((input.attribs["type"] == "text" || input["name"] == "textarea" || input.attribs["type"] == "checkbox" || input.attribs["type"] == "radio") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
+		else if((input.attribs["type"] == "text" || input["name"] == "textarea" || input.attribs["type"] == "checkbox" || input.attribs["type"] == "radio") && ((!input.attribs["aria-label"] || input.attribs["aria-label"] == "") || (input.attribs["aria-labelledby"] || input.attribs["aria-labelledby"] == ""))) {
 			if(!inputList[1].find(element => element.attribs["for"] === input.attribs["id"])["prevObject"].length > 0 || input.attribs["id"] == undefined) {
 				let suggestion = generateText(input);
 				inputs[Object.keys(suggestion)[0]] = suggestion[Object.keys(suggestion)[0]];
